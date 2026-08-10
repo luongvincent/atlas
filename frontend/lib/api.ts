@@ -1,0 +1,63 @@
+import type {
+  ApiErrorBody,
+  ExplainResponse,
+  OnboardingRequest,
+  OnboardingResponse,
+  TickersListResponse,
+} from "./types";
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+
+export class ApiError extends Error {
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "ApiError";
+  }
+}
+
+async function request<T>(path: string, options: RequestInit & { accessToken?: string } = {}): Promise<T> {
+  const { accessToken, headers, ...rest } = options;
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...rest,
+    headers: {
+      ...(rest.body ? { "Content-Type": "application/json" } : {}),
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...headers,
+    },
+  });
+
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const body: ApiErrorBody = await response.json();
+      message = body.detail ?? body.error ?? message;
+    } catch {
+      // response body wasn't JSON - fall back to statusText
+    }
+    throw new ApiError(response.status, message);
+  }
+
+  return (await response.json()) as T;
+}
+
+export function getTickers(): Promise<TickersListResponse> {
+  return request<TickersListResponse>("/tickers");
+}
+
+export function getExplanation(ticker: string, accessToken?: string): Promise<ExplainResponse> {
+  return request<ExplainResponse>(`/explain/${encodeURIComponent(ticker)}`, { accessToken });
+}
+
+export function submitOnboarding(
+  payload: OnboardingRequest,
+  accessToken: string,
+): Promise<OnboardingResponse> {
+  return request<OnboardingResponse>("/onboarding", {
+    method: "POST",
+    body: JSON.stringify(payload),
+    accessToken,
+  });
+}
