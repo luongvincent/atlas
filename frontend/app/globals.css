@@ -3,5 +3,14 @@
 @tailwind utilities;
 
 body {
-  @apply bg-slate-50 text-slate-900;
+  @apply bg-slate-50 text-slate-900 antialiased;
+  background-image: radial-gradient(circle at top, theme("colors.brand.50") 0%, transparent 55%);
+  background-attachment: fixed;
+}
+
+/* Visible, on-brand focus ring everywhere - HCI heuristic #7/#10
+   (keyboard operability + accessibility aren't optional). Skipped for
+   mouse/touch input via :focus-visible so it doesn't show on every click. */
+:focus-visible {
+  @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-slate-50;
 }
