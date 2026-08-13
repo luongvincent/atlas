@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
-import { ApiError, submitOnboarding } from "@/lib/api";
+import { ApiError, getOnboarding, submitOnboarding } from "@/lib/api";
 import type {
   Goal,
   InvestingExperience,
@@ -116,6 +116,36 @@ export default function OnboardingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<RiskProfileLabel | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  useEffect(() => {
+    if (authLoading) return;
+
+    if (!user || !session) {
+      setProfileLoading(false);
+      return;
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await getOnboarding(session!.access_token);
+
+        if (res) {
+          setResult(res.risk_profile);
+        }
+      } catch (err) {
+        setError(
+          err instanceof ApiError
+            ? err.message
+            : "Failed to load risk profile"
+        );
+      } finally {
+        setProfileLoading(false);
+      }
+    }
+
+    loadProfile();
+  }, [authLoading, user, session]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -132,7 +162,7 @@ export default function OnboardingPage() {
     }
   }
 
-  if (authLoading) return null;
+  if (authLoading || profileLoading) return null;
 
   if (!user) {
     return (
