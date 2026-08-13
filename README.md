@@ -1,8 +1,11 @@
-# Earnings Call Explainer
+# Atlas
+
+**Stocks, plainly explained.**
 
 A fintech MVP that turns dense quarterly earnings call transcripts into
 plain-language explanations for regular consumers - no finance background
-required.
+required. Built with family and retirement planning in mind, not day
+trading.
 
 Covers the top 15 US individual-company tickers by average daily trading
 volume (ETFs/index funds/trusts excluded): NVDA, INTC, NOK, SOFI, ONDS,
