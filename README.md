@@ -23,6 +23,9 @@ AAPL, AMZN, PATH, PLTR, AAL, F, T, PLUG, NU, SNAP.
    beginners, a tailored closing note based on risk comfort - as a cheap,
    deterministic post-processing pass on the cached explanation, not a
    second LLM call.
+4. **`GET /onboarding`**
+   retrieves the authenticated user's saved profile so onboarding state
+   persists across page visits.
 
 ## Architecture
 
@@ -37,7 +40,7 @@ flowchart TB
         mw["CORS -> Security headers -> Rate limiting"]
         tickers["GET /tickers"]
         explain["GET /explain/ticker"]
-        onboarding["POST /onboarding"]
+        onboarding["GET / POST /onboarding"]
         mw --> tickers
         mw --> explain
         mw --> onboarding
@@ -137,6 +140,7 @@ backend's `.env` includes the frontend's origin.
 | ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `GET /tickers`          | none     | Supported tickers + latest ingested quarter                                                                                                                             |
 | `GET /explain/{ticker}` | optional | 404 if unsupported/not yet ingested. Cached explanations are free to read anonymously; generating a new one (cache miss) requires sign-in, since it burns Groq quota. Adapts to the caller's risk profile if signed in and onboarded. |
+| `GET /onboarding`       | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed. |
 | `POST /onboarding`      | required | 5-question quiz -> upserts a risk profile                                                                                                                               |
 | `GET /health`           | none     | Liveness check                                                                                                                                                          |
 
