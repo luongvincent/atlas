@@ -19,11 +19,9 @@ export function Header() {
       <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
         <Link href="/" className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-            E
+            A
           </span>
-          <span className="text-base font-semibold tracking-tight text-slate-900">
-            Earnings Call Explainer
-          </span>
+          <span className="text-base font-semibold tracking-tight text-slate-900">Atlas</span>
         </Link>
 
         <nav className="flex items-center gap-1">
