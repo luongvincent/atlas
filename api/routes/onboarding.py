@@ -47,3 +47,34 @@ async def onboarding(
         )
 
     return OnboardingResponse(risk_profile=risk_profile)
+
+@router.get("/onboarding", response_model=OnboardingResponse)
+async def get_onboarding(
+    user: AuthContext = Depends(get_current_user_required),
+) -> OnboardingResponse:
+    client = get_request_client(access_token=user.access_token)
+
+    try:
+        result = (
+            client.table("risk_profiles")
+            .select("risk_profile")
+            .eq("user_id", user.user_id)
+            .maybe_single()
+            .execute()
+        )
+    except Exception:
+        logger.exception("Failed to fetch risk profile")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to fetch risk profile",
+        )
+
+    if not result.data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Risk profile not found",
+        )
+
+    return OnboardingResponse(
+        risk_profile=result.data["risk_profile"]
+    )

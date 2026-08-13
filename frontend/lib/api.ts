@@ -61,3 +61,19 @@ export function submitOnboarding(
     accessToken,
   });
 }
+
+export async function getOnboarding(
+  accessToken: string,
+): Promise<OnboardingResponse | null> {
+  try {
+    return await request<OnboardingResponse>("/onboarding", {
+      accessToken,
+    });
+  } catch (err) {
+    if (err instanceof ApiError && err.status === 404) {
+      return null;
+    }
+
+    throw err;
+  }
+}
