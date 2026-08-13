@@ -1,6 +1,7 @@
 {
-  "name": "earnings-call-explainer-frontend",
+  "name": "atlas-frontend",
   "version": "0.1.0",
+  "description": "Atlas - stocks, plainly explained.",
   "private": true,
   "scripts": {
     "dev": "next dev",
