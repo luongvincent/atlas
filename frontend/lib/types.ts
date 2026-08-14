@@ -54,7 +54,7 @@ export interface OnboardingRequest {
   goals: Goal;
 }
 
-export interface OnboardingResponse {
+export interface OnboardingResponse extends OnboardingRequest {
   risk_profile: RiskProfileLabel;
 }
 

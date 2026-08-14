@@ -48,5 +48,5 @@ class OnboardingRequest(BaseModel):
     goals: Goal
 
 
-class OnboardingResponse(BaseModel):
+class OnboardingResponse(OnboardingRequest):
     risk_profile: RiskProfileLabel
