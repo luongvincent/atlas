@@ -117,7 +117,7 @@ async def explain(
     quarter, _call_date = latest
     # Cheap, deterministic per-request adaptation (no extra LLM call) - see
     # core/explanation_adapter.py. None whenever the caller is anonymous or
-    # hasn't completed the onboarding quiz, in which case sections pass
+    # hasn't completed the onboarding pereferences form, in which case sections pass
     # through unchanged.
     risk_ctx = _load_risk_profile_context(client, user)
 

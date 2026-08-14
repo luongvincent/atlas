@@ -1,4 +1,4 @@
--- Results of the 5-question onboarding quiz (POST /onboarding), one row
+-- Results of the 5-question onboarding preferences (POST /onboarding), one row
 -- per user. risk_profile is the derived label the app adapts /explain
 -- output to.
 create table if not exists public.risk_profiles (
