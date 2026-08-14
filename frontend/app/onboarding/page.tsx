@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
+import { Skeleton } from "@/components/Skeleton";
 import { ApiError, getOnboarding, submitOnboarding } from "@/lib/api";
 import type {
   Goal,
@@ -196,7 +197,19 @@ export default function OnboardingPage() {
     }
   }
 
-  if (authLoading || profileLoading) return null;
+  if (authLoading || profileLoading) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="mt-2 h-4 w-full" />
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="mt-4 h-4 w-32" />
+          <Skeleton className="mt-3 h-6 w-24 rounded-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -215,37 +228,32 @@ export default function OnboardingPage() {
   const showForm = !savedProfile || editing;
 
   return (
-    <div className="max-w-xl">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Explanation preferences</h1>
+    <div className="mx-auto max-w-xl text-center">
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Explanation Preferences</h1>
       <p className="mt-1 text-sm text-slate-600">
-        5 quick questions. We use this to adjust the tone and depth of your explanations - not to give
-        investment advice.
+        5 quick questions. We use this to adjust the tone and depth of your explanations - not to
+        give investment advice.
       </p>
 
       {!showForm && savedProfile ? (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-          <p className="text-sm font-medium text-slate-500">Your risk profile</p>
-          <div className="mt-2">
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-brand-100 bg-gradient-to-b from-brand-50/60 to-white p-8 text-center shadow-card">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-xl shadow-card">
+            🎯
+          </span>
+          <p className="mt-4 text-sm font-medium text-slate-500">Your risk profile</p>
+          <div className="mt-3">
             <Badge tone={savedProfile.risk_profile}>{savedProfile.risk_profile}</Badge>
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700">
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-700">
             {RISK_PROFILE_COPY[savedProfile.risk_profile]}
           </p>
-          <div className="mt-4 flex gap-3">
-            <Link
-              href="/tickers"
-              className="inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-            >
-              Browse tickers
-            </Link>
-            <button
-              type="button"
-              onClick={handleEditClick}
-              className="inline-block rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
-            >
-              Edit preferences
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleEditClick}
+            className="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          >
+            Edit preferences
+          </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
