@@ -13,7 +13,7 @@ from core.security_headers import SecurityHeadersMiddleware
 
 settings = get_settings()
 
-app = FastAPI(title="Atlas", version="0.1.0")
+app = FastAPI(title="Atlas Capital", version="0.1.0")
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)

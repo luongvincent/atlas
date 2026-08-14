@@ -1,7 +1,7 @@
 {
-  "name": "atlas-frontend",
+  "name": "atlas-capital-frontend",
   "version": "0.1.0",
-  "description": "Atlas - stocks, plainly explained.",
+  "description": "Atlas Capital- stocks, plainly explained.",
   "private": true,
   "scripts": {
     "dev": "next dev",

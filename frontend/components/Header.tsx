@@ -21,7 +21,7 @@ export function Header() {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
             A
           </span>
-          <span className="text-base font-semibold tracking-tight text-slate-900">Atlas</span>
+          <span className="text-base font-semibold tracking-tight text-slate-900">Atlas Capital</span>
         </Link>
 
         <nav className="flex items-center gap-1">

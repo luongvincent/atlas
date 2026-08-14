@@ -1,4 +1,4 @@
-# Atlas
+# Atlas Capital
 
 **Stocks, plainly explained.**
 

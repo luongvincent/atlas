@@ -6,7 +6,7 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Atlas — Stocks, plainly explained.",
+  title: "Atlas Capital — Stocks, plainly explained.",
   description: "Plain-language AI overviews of stocks and financial data for family and retirement planning.",
 };
 
