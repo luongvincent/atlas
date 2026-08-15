@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 from core.explainer_chain import Citation, ExplanationSections
 from core.explanation_adapter import GlossaryEntry
+from core.market_data import ChartPoint
 from core.risk_profile import (
     Goal,
     InvestingExperience,
@@ -50,3 +51,10 @@ class OnboardingRequest(BaseModel):
 
 class OnboardingResponse(OnboardingRequest):
     risk_profile: RiskProfileLabel
+
+
+class ChartResponse(BaseModel):
+    ticker: str
+    range: str
+    interval: str
+    points: list[ChartPoint]
