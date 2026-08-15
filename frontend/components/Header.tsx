@@ -8,8 +8,8 @@ import { useAuth } from "./AuthProvider";
 
 const NAV_LINKS = [
   { href: "/tickers", label: "Tickers" },
-  { href: "/onboarding", label: "Preferences" },
   { href: "/learn", label: "Learn" },
+  { href: "/onboarding", label: "Preferences" },
   { href: "/team", label: "Team" },
 ];
 
