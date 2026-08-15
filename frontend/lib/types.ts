@@ -62,3 +62,17 @@ export interface ApiErrorBody {
   detail?: string;
   error?: string;
 }
+
+export type ChartRangeOption = "1D" | "5D" | "1M" | "6M" | "YTD" | "1Y" | "5Y" | "ALL";
+
+export interface ChartPoint {
+  timestamp: string;
+  close: number;
+}
+
+export interface ChartResponse {
+  ticker: string;
+  range: string;
+  interval: string;
+  points: ChartPoint[];
+}
