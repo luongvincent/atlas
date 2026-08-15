@@ -17,8 +17,7 @@ export default function TeamPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Team</h1>
-        <p className="mt-1 text-base text-slate-600">The two of us building Atlas Capital.</p>
+        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Our Team</h1>
       </div>
 
       <div className="mt-10 flex justify-center gap-12 sm:gap-16">

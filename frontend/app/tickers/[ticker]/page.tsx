@@ -40,6 +40,10 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
 
   return (
     <div>
+      <Link href="/tickers" className="text-sm font-medium text-brand-700 hover:underline">
+        ← Back to tickers
+      </Link>
+
       <h1 className="text-3xl font-bold tracking-tight text-slate-900">{ticker}</h1>
 
       {loading && (
@@ -96,9 +100,20 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             <span className="font-semibold text-slate-900">{data.company_name}</span>
             <span className="text-slate-300">&middot;</span>
             <span>{data.quarter}</span>
-            <Badge tone={data.cached ? "neutral" : "positive"}>
-              {data.cached ? "cached" : "freshly generated"}
-            </Badge>
+          </div>
+
+          {data.generated_at && (
+            <p className="text-xs text-slate-400">
+              Generated {new Date(data.generated_at).toLocaleDateString()}
+              {data.cached && " · served from cache"}
+            </p>
+          )}
+
+          <div className="rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
+            <p className="text-xs leading-relaxed text-brand-900">
+              <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
+              Use it to understand what happened - not as a recommendation to buy, sell, or hold.
+            </p>
           </div>
 
           {SECTIONS.map(({ key, label, step }) => (

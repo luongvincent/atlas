@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -18,12 +19,17 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3.5">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4.8">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-600 text-sm font-bold text-white">
-            A
-          </span>
-          <span className="text-base font-semibold tracking-tight text-slate-900">Atlas Capital</span>
+          <Image
+            src="/logo.png"
+            alt="Atlas Capital"
+            width={56}
+            height={56}
+            className="h-14 w-14 rounded-lg object-cover"
+            priority
+          />
+          <span className="text-xl font-semibold tracking-tight text-slate-900">Atlas Capital</span>
         </Link>
 
         <nav className="flex items-center gap-1">
