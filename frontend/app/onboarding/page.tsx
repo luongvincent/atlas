@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
+import { Skeleton } from "@/components/Skeleton";
 import { ApiError, getOnboarding, submitOnboarding } from "@/lib/api";
 import type {
   Goal,
   InvestingExperience,
   OnboardingRequest,
+  OnboardingResponse,
   PortfolioSizeRange,
   RiskProfileLabel,
   TimeHorizon,
@@ -48,6 +50,24 @@ const RISK_PROFILE_COPY: Record<RiskProfileLabel, string> = {
   moderate: "Explanations will balance growth potential and risk.",
   aggressive: "Explanations will emphasize growth trajectory over short-term noise.",
 };
+
+const DEFAULT_FORM: OnboardingRequest = {
+  investing_experience: "beginner",
+  time_horizon: "medium_term",
+  risk_comfort: 3,
+  portfolio_size_range: "1k_10k",
+  goals: "growth",
+};
+
+function formFromResponse(res: OnboardingResponse): OnboardingRequest {
+  return {
+    investing_experience: res.investing_experience,
+    time_horizon: res.time_horizon,
+    risk_comfort: res.risk_comfort,
+    portfolio_size_range: res.portfolio_size_range,
+    goals: res.goals,
+  };
+}
 
 function OptionCards<T extends string>({
   options,
@@ -106,17 +126,19 @@ function QuestionChip({ step }: { step: string }) {
 
 export default function OnboardingPage() {
   const { user, session, loading: authLoading } = useAuth();
-  const [form, setForm] = useState<OnboardingRequest>({
-    investing_experience: "beginner",
-    time_horizon: "medium_term",
-    risk_comfort: 3,
-    portfolio_size_range: "1k_10k",
-    goals: "growth",
-  });
-  const [submitting, setSubmitting] = useState(false);
-  const [result, setResult] = useState<RiskProfileLabel | null>(null);
-  const [error, setError] = useState<string | null>(null);
+
+  // The saved preferences as last returned by the API, or null if the
+  // user has never submitted them.
+  const [savedProfile, setSavedProfile] = useState<OnboardingResponse | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+
+  // Whether the form is currently open for editing. Irrelevant/ignored
+  // when savedProfile is null, since the form is always shown in that case.
+  const [editing, setEditing] = useState(false);
+
+  const [form, setForm] = useState<OnboardingRequest>(DEFAULT_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authLoading) return;
@@ -129,15 +151,14 @@ export default function OnboardingPage() {
     async function loadProfile() {
       try {
         const res = await getOnboarding(session!.access_token);
-
         if (res) {
-          setResult(res.risk_profile);
+          setSavedProfile(res);
         }
       } catch (err) {
         setError(
           err instanceof ApiError
             ? err.message
-            : "Failed to load risk profile"
+            : "Failed to load preferences"
         );
       } finally {
         setProfileLoading(false);
@@ -147,6 +168,19 @@ export default function OnboardingPage() {
     loadProfile();
   }, [authLoading, user, session]);
 
+  function handleEditClick() {
+    if (savedProfile) {
+      setForm(formFromResponse(savedProfile));
+    }
+    setError(null);
+    setEditing(true);
+  }
+
+  function handleCancel() {
+    setError(null);
+    setEditing(false);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!session) return;
@@ -154,7 +188,8 @@ export default function OnboardingPage() {
     setError(null);
     try {
       const res = await submitOnboarding(form, session.access_token);
-      setResult(res.risk_profile);
+      setSavedProfile(res);
+      setEditing(false);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
     } finally {
@@ -162,7 +197,19 @@ export default function OnboardingPage() {
     }
   }
 
-  if (authLoading || profileLoading) return null;
+  if (authLoading || profileLoading) {
+    return (
+      <div className="mx-auto max-w-xl">
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="mt-2 h-4 w-full" />
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="mt-4 h-4 w-32" />
+          <Skeleton className="mt-3 h-6 w-24 rounded-full" />
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
     return (
@@ -171,33 +218,42 @@ export default function OnboardingPage() {
           <Link href="/login" className="font-medium underline">
             Sign in
           </Link>{" "}
-          to take the risk profile quiz.
+          to set your explanation preferences.
         </p>
       </div>
     );
   }
 
+  // Form is shown when there's nothing saved yet, or when explicitly editing.
+  const showForm = !savedProfile || editing;
+
   return (
-    <div className="max-w-xl">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Risk profile quiz</h1>
+    <div className="mx-auto max-w-xl text-center">
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Explanation Preferences</h1>
       <p className="mt-1 text-sm text-slate-600">
-        5 quick questions. We use this to adjust the tone and depth of your explanations - not to give
-        investment advice.
+        5 quick questions. We use this to adjust the tone and depth of your explanations - not to
+        give investment advice.
       </p>
 
-      {result ? (
-        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
-          <p className="text-sm font-medium text-slate-500">Your risk profile</p>
-          <div className="mt-2">
-            <Badge tone={result}>{result}</Badge>
+      {!showForm && savedProfile ? (
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-brand-100 bg-gradient-to-b from-brand-50/60 to-white p-8 text-center shadow-card">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-xl shadow-card">
+            🎯
+          </span>
+          <p className="mt-4 text-sm font-medium text-slate-500">Your risk profile</p>
+          <div className="mt-3">
+            <Badge tone={savedProfile.risk_profile}>{savedProfile.risk_profile}</Badge>
           </div>
-          <p className="mt-3 text-sm leading-relaxed text-slate-700">{RISK_PROFILE_COPY[result]}</p>
-          <Link
-            href="/tickers"
-            className="mt-4 inline-block rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
+          <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-700">
+            {RISK_PROFILE_COPY[savedProfile.risk_profile]}
+          </p>
+          <button
+            type="button"
+            onClick={handleEditClick}
+            className="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
           >
-            Browse tickers
-          </Link>
+            Edit preferences
+          </button>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
@@ -287,13 +343,25 @@ export default function OnboardingPage() {
             <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="w-full rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-          >
-            {submitting ? "Submitting..." : "Submit"}
-          </button>
+          <div className="flex gap-3">
+            <button
+              type="submit"
+              disabled={submitting}
+              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {submitting ? "Saving..." : "Save preferences"}
+            </button>
+            {savedProfile && (
+              <button
+                type="button"
+                onClick={handleCancel}
+                disabled={submitting}
+                className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
       )}
     </div>

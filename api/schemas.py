@@ -35,7 +35,7 @@ class ExplainResponse(BaseModel):
     cached: bool
     generated_at: str | None = None
     # Populated only when the caller is authenticated, has completed the
-    # onboarding quiz, and investing_experience is beginner-level - see
+    # onboarding pereferences form, and investing_experience is beginner-level - see
     # core/explanation_adapter.py.
     glossary: list[GlossaryEntry] = Field(default_factory=list)
 
@@ -48,5 +48,5 @@ class OnboardingRequest(BaseModel):
     goals: Goal
 
 
-class OnboardingResponse(BaseModel):
+class OnboardingResponse(OnboardingRequest):
     risk_profile: RiskProfileLabel

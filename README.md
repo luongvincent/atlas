@@ -1,4 +1,4 @@
-# Atlas
+# Atlas Capital
 
 **Stocks, plainly explained.**
 
@@ -20,7 +20,7 @@ AAPL, AMZN, PATH, PLTR, AAL, F, T, PLUG, NU, SNAP.
    Groq (`llama-3.3-70b-versatile`) to produce a grounded, plain-language
    explanation with citations, and caches it in Supabase so repeat
    requests are free.
-3. **`POST /onboarding`** collects a 5-question quiz and derives a risk
+3. **`POST /onboarding`** collects a 5-question preferences form and derives a risk
    profile (conservative / moderate / aggressive). `GET /explain` then
    adapts tone and depth to that profile - more glossary definitions for
    beginners, a tailored closing note based on risk comfort - as a cheap,
@@ -112,7 +112,7 @@ Then visit `http://localhost:8000/docs` for interactive API docs.
 
 A minimal Next.js (App Router, TypeScript, Tailwind) UI lives in `/frontend` -
 ticker grid, an explanation page (sections/citations/glossary), and a
-risk-profile quiz. Auth is Supabase email/password via `@supabase/supabase-js`
+risk-profile preferences form. Auth is Supabase email/password via `@supabase/supabase-js`
 directly in the browser (no custom backend auth).
 
 ```bash
@@ -144,7 +144,7 @@ backend's `.env` includes the frontend's origin.
 | `GET /tickers`          | none     | Supported tickers + latest ingested quarter                                                                                                                             |
 | `GET /explain/{ticker}` | optional | 404 if unsupported/not yet ingested. Cached explanations are free to read anonymously; generating a new one (cache miss) requires sign-in, since it burns Groq quota. Adapts to the caller's risk profile if signed in and onboarded. |
 | `GET /onboarding`       | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed. |
-| `POST /onboarding`      | required | 5-question quiz -> upserts a risk profile                                                                                                                               |
+| `POST /onboarding`      | required | 5-question preferences form -> upserts a risk profile                                                                                                                               |
 | `GET /health`           | none     | Liveness check                                                                                                                                                          |
 
 Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>`.

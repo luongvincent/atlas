@@ -26,7 +26,7 @@ python scripts/seed_tickers.py
 |------------------------|------------------------------------------|--------------------------|
 | `tickers`              | reference data (mirrors `config/tickers.py`) | none - public read, admin-only write |
 | `profiles`              | 1 row per Supabase Auth user             | `id = auth.uid()`        |
-| `risk_profiles`         | onboarding quiz results                  | `user_id = auth.uid()`   |
+| `risk_profiles`         | onboarding preferences results                  | `user_id = auth.uid()`   |
 | `request_logs`          | per-request latency/status audit trail   | `user_id = auth.uid()` (or `null` for anonymous, write-only) |
 | `cached_explanations`   | shared `/explain` cache, keyed on (ticker, quarter) | none - public read, authenticated write |
 

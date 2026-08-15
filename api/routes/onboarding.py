@@ -25,8 +25,6 @@ async def onboarding(
         goals=payload.goals,
     )
 
-    # authenticated-role client bound to the caller's own JWT, so the
-    # risk_profiles RLS policies (user_id = auth.uid()) apply.
     client = get_request_client(access_token=user.access_token)
     row = {
         "user_id": user.user_id,
@@ -46,7 +44,7 @@ async def onboarding(
             detail="Failed to save onboarding responses",
         )
 
-    return OnboardingResponse(risk_profile=risk_profile)
+    return OnboardingResponse(**payload.model_dump(), risk_profile=risk_profile)
 
 @router.get("/onboarding", response_model=OnboardingResponse)
 async def get_onboarding(
@@ -57,7 +55,10 @@ async def get_onboarding(
     try:
         result = (
             client.table("risk_profiles")
-            .select("risk_profile")
+            .select(
+                "investing_experience,time_horizon,risk_comfort,"
+                "portfolio_size_range,goals,risk_profile"
+            )
             .eq("user_id", user.user_id)
             .maybe_single()
             .execute()
@@ -75,6 +76,4 @@ async def get_onboarding(
             detail="Risk profile not found",
         )
 
-    return OnboardingResponse(
-        risk_profile=result.data["risk_profile"]
-    )
+    return OnboardingResponse(**result.data)
