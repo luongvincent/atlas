@@ -4,6 +4,7 @@ from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
+from api.routes.chart import router as chart_router
 from api.routes.explain import router as explain_router
 from api.routes.onboarding import router as onboarding_router
 from api.routes.tickers import router as tickers_router
@@ -35,6 +36,7 @@ app.add_middleware(
 app.include_router(tickers_router)
 app.include_router(explain_router)
 app.include_router(onboarding_router)
+app.include_router(chart_router)
 
 
 @app.get("/health")
