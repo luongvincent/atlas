@@ -5,6 +5,7 @@ import type {
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
+  TickerStats,
   TickersListResponse,
 } from "./types";
 
@@ -68,6 +69,10 @@ export function getChart(ticker: string, range: ChartRangeOption): Promise<Chart
   return request<ChartResponse>(
     `/chart/${encodeURIComponent(ticker)}?range=${encodeURIComponent(range)}`,
   );
+}
+
+export function getStats(ticker: string): Promise<TickerStats> {
+  return request<TickerStats>(`/stats/${encodeURIComponent(ticker)}`);
 }
 
 export async function getOnboarding(

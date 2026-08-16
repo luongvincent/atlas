@@ -76,3 +76,15 @@ export interface ChartResponse {
   interval: string;
   points: ChartPoint[];
 }
+
+export interface TickerStats {
+  ticker: string;
+  pe_ratio: number | null;
+  pb_ratio: number | null;
+  peg_ratio: number | null;
+  dividend_yield: number | null;
+  beta: number | null;
+  alpha: number | null;
+  sharpe_ratio: number | null;
+  sortino_ratio: number | null;
+}

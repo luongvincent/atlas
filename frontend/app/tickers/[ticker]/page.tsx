@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
+import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getExplanation } from "@/lib/api";
 import type { ExplainResponse } from "@/lib/types";
 
@@ -46,6 +47,8 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       <div className="mt-4">
         <PriceChart ticker={ticker} />
       </div>
+
+      <StatsGrid ticker={ticker} />
 
       {loading && (
         <div className="mt-6 space-y-4">
