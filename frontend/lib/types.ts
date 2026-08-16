@@ -62,3 +62,29 @@ export interface ApiErrorBody {
   detail?: string;
   error?: string;
 }
+
+export type ChartRangeOption = "1D" | "5D" | "1M" | "6M" | "YTD" | "1Y" | "5Y" | "ALL";
+
+export interface ChartPoint {
+  timestamp: string;
+  close: number;
+}
+
+export interface ChartResponse {
+  ticker: string;
+  range: string;
+  interval: string;
+  points: ChartPoint[];
+}
+
+export interface TickerStats {
+  ticker: string;
+  pe_ratio: number | null;
+  pb_ratio: number | null;
+  peg_ratio: number | null;
+  dividend_yield: number | null;
+  beta: number | null;
+  alpha: number | null;
+  sharpe_ratio: number | null;
+  sortino_ratio: number | null;
+}

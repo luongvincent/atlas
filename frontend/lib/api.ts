@@ -1,8 +1,11 @@
 import type {
   ApiErrorBody,
+  ChartRangeOption,
+  ChartResponse,
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
+  TickerStats,
   TickersListResponse,
 } from "./types";
 
@@ -60,6 +63,16 @@ export function submitOnboarding(
     body: JSON.stringify(payload),
     accessToken,
   });
+}
+
+export function getChart(ticker: string, range: ChartRangeOption): Promise<ChartResponse> {
+  return request<ChartResponse>(
+    `/chart/${encodeURIComponent(ticker)}?range=${encodeURIComponent(range)}`,
+  );
+}
+
+export function getStats(ticker: string): Promise<TickerStats> {
+  return request<TickerStats>(`/stats/${encodeURIComponent(ticker)}`);
 }
 
 export async function getOnboarding(
