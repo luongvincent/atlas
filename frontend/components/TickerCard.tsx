@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { useState } from "react";
 
 import type { TickerInfo } from "@/lib/types";
 import { Badge } from "./Badge";
 
 export function TickerCard({ ticker }: { ticker: TickerInfo }) {
   const ingested = Boolean(ticker.latest_quarter);
+  const [logoFailed, setLogoFailed] = useState(false);
+  const logoSrc = `/tickers/${ticker.ticker.toLowerCase()}.jpeg`;
 
   return (
     <Link
@@ -13,9 +16,18 @@ export function TickerCard({ ticker }: { ticker: TickerInfo }) {
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2.5">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 transition-colors group-hover:bg-brand-100">
-            {ticker.ticker[0]}
-          </span>
+          {!logoFailed ? (
+            <img
+              src={logoSrc}
+              alt=""
+              className="h-9 w-9 shrink-0 rounded-lg border border-slate-100 object-contain"
+              onError={() => setLogoFailed(true)}
+            />
+          ) : (
+            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 transition-colors group-hover:bg-brand-100">
+              {ticker.ticker[0]}
+            </span>
+          )}
           <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-brand-700">
             {ticker.ticker}
           </span>

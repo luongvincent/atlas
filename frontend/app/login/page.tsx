@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/AuthProvider";
@@ -20,9 +21,14 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col items-center py-16">
-      <span className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-xl font-bold text-white shadow-card">
-        A
-      </span>
+      <Image
+        src="/logo.png"
+        alt="Atlas Capital"
+        width={56}
+        height={56}
+        className="mb-4 h-14 w-14 rounded-lg object-cover shadow-card"
+        priority
+      />
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-slate-900">Atlas Capital</h1>
       <p className="mb-1 text-sm font-medium text-brand-700">Stocks, plainly explained.</p>
       <p className="mb-8 text-sm text-slate-600">Sign in to generate and personalize explanations.</p>
