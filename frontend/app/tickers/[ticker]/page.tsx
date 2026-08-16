@@ -48,6 +48,30 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
 
       <h1 className="text-3xl font-bold tracking-tight text-slate-900">{ticker}</h1>
 
+      {data && (
+        <>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
+            <span className="font-semibold text-slate-900">{data.company_name}</span>
+            <span className="text-slate-300">&middot;</span>
+            <span>{data.quarter}</span>
+          </div>
+
+          {data.generated_at && (
+            <p className="mt-1 text-xs text-slate-400">
+              Generated {new Date(data.generated_at).toLocaleDateString()}
+              {data.cached && " · served from cache"}
+            </p>
+          )}
+
+          <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
+            <p className="text-xs leading-relaxed text-brand-900">
+              <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
+              Use it to understand what happened - not as a recommendation to buy, sell, or hold.
+            </p>
+          </div>
+        </>
+      )}
+
       <div className="mt-4">
         <PriceChart ticker={ticker} />
       </div>
@@ -104,26 +128,6 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
 
       {data && (
         <div className="mt-6 space-y-6">
-          <div className="flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">{data.company_name}</span>
-            <span className="text-slate-300">&middot;</span>
-            <span>{data.quarter}</span>
-          </div>
-
-          {data.generated_at && (
-            <p className="text-xs text-slate-400">
-              Generated {new Date(data.generated_at).toLocaleDateString()}
-              {data.cached && " · served from cache"}
-            </p>
-          )}
-
-          <div className="rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
-            <p className="text-xs leading-relaxed text-brand-900">
-              <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
-              Use it to understand what happened - not as a recommendation to buy, sell, or hold.
-            </p>
-          </div>
-
           {SECTIONS.map(({ key, label, step }) => (
             <section
               key={key}
