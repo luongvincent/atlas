@@ -3,12 +3,12 @@ import Image from "next/image";
 const TEAM = [
   {
     name: "Vincent Luong",
-    role: "Founder / Lead Developer",
+    role: "Founder/Lead MLE",
     image: "/team-1.png",
   },
   {
     name: "Aadit Rao",
-    role: "Developer",
+    role: "Founder/Lead Developer",
     image: "/team-2.jpeg",
   },
 ];
@@ -35,9 +35,19 @@ export default function TeamPage() {
       <div className="mx-auto mt-14 max-w-lg text-center">
         <p className="text-base font-semibold uppercase tracking-wide text-brand-700">A note from the founder</p>
         <p className="mt-3 text-lg leading-relaxed text-slate-700">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut
-          labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco
-          laboris nisi ut aliquip ex ea commodo consequat.
+          I grew up in a family where money was always tight, and financial planning wasn&apos;t
+          really a conversation we had - we were just trying to get by. My parents are 65 now, and
+          they don&apos;t have retirement savings to fall back on. That&apos;s not a rare story. It&apos;s
+          the story of a lot of families, especially as the gap between people who have access to
+          financial knowledge and people who don&apos;t keeps widening.
+        </p>
+        <p className="mt-4 text-lg leading-relaxed text-slate-700">
+          Atlas exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
+          something you&apos;re only born into - it should be something anyone can pick up, in plain
+          language, without a finance degree or a family member who already knows this stuff. My hope
+          is that young adults, especially ones who grew up like I did, start thinking about
+          retirement early, not because it&apos;s urgent today, but because a little understanding,
+          started early, adds up to a lot more freedom later.
         </p>
         <p className="mt-4 text-lg font-medium text-slate-900">- Vincent Luong</p>
       </div>
