@@ -3,12 +3,12 @@ import Image from "next/image";
 const TEAM = [
   {
     name: "Vincent Luong",
-    role: "Founder/Lead MLE",
+    role: "Founder",
     image: "/team-1.png",
   },
   {
     name: "Aadit Rao",
-    role: "Founder/Lead Developer",
+    role: "Lead Developer",
     image: "/team-2.jpeg",
   },
 ];
@@ -42,7 +42,7 @@ export default function TeamPage() {
           financial knowledge and people who don&apos;t keeps widening.
         </p>
         <p className="mt-4 text-lg leading-relaxed text-slate-700">
-          Atlas exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
+          Atlas Capital exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
           something you&apos;re only born into - it should be something anyone can pick up, in plain
           language, without a finance degree or a family member who already knows this stuff. My hope
           is that young adults, especially ones who grew up like I did, start thinking about
