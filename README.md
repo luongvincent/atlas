@@ -11,6 +11,10 @@ Covers the top 15 US individual-company tickers by average daily trading
 volume (ETFs/index funds/trusts excluded): NVDA, INTC, NOK, SOFI, ONDS,
 AAPL, AMZN, PATH, PLTR, AAL, F, T, PLUG, NU, SNAP.
 
+Also covers the top 15 most actively traded US ETFs and top 15 Canadian
+ETFs (leveraged/inverse funds excluded), with price charts, key stats,
+top holdings, and sector breakdowns for each.
+
 ## How it works
 
 1. **Ingestion** scrapes the latest earnings call transcript for each
@@ -29,6 +33,14 @@ AAPL, AMZN, PATH, PLTR, AAL, F, T, PLUG, NU, SNAP.
 4. **`GET /onboarding`**
    retrieves the authenticated user's saved profile so onboarding state
    persists across page visits.
+5. **`GET /chart/{ticker}`** and **`GET /stats/{ticker}`** serve price
+   history and valuation/risk metrics (P/E, Sharpe ratio, beta, etc.) for
+   any supported stock or ETF ticker, pulled live from the market data
+   provider rather than cached - these are read-only market data lookups,
+   not AI-generated content.
+6. **`GET /etfs`** / **`GET /etfs/ca`** list the supported US and Canadian
+   ETFs; **`GET /etfs/{ticker}/holdings`** returns top holdings and sector
+   breakdown for a given ETF.
 
 ## Architecture
 
@@ -44,9 +56,15 @@ flowchart TB
         tickers["GET /tickers"]
         explain["GET /explain/ticker"]
         onboarding["GET / POST /onboarding"]
+        chart["GET /chart/ticker"]
+        stats["GET /stats/ticker"]
+        etfs["GET /etfs, /etfs/ca,\n/etfs/ticker/holdings"]
         mw --> tickers
         mw --> explain
         mw --> onboarding
+        mw --> chart
+        mw --> stats
+        mw --> etfs
     end
 
     subgraph Core["core/"]
@@ -56,6 +74,9 @@ flowchart TB
         riskprofile["risk_profile.py\nquiz -> risk label"]
         llm["llm.py\nChatGroq + retry/backoff"]
         vstore["vector_store.py\nPinecone wrapper"]
+        marketdata["market_data.py\nprice history"]
+        tickerstats["ticker_stats.py\nfundamentals + risk metrics"]
+        etfholdings["etf_holdings.py\ntop holdings + sectors"]
     end
 
     subgraph Ingestion["ingestion/ (offline, scripts/run_ingestion.py)"]
@@ -69,6 +90,7 @@ flowchart TB
     Supabase[(Supabase / Postgres\ntickers, profiles, risk_profiles,\nrequest_logs, cached_explanations)]
     Groq[[Groq API]]
     Fool[[Motley Fool transcripts]]
+    Yahoo[[Yahoo Finance\nvia yfinance]]
 
     user --> mw
     explain --> auth
@@ -81,6 +103,9 @@ flowchart TB
     explain --> Supabase
     tickers --> Supabase
     onboarding --> Supabase
+    chart --> marketdata --> Yahoo
+    stats --> tickerstats --> Yahoo
+    etfs --> etfholdings --> Yahoo
     pipeline --> vstore
     pipeline --> Supabase
     source --> Fool
@@ -111,9 +136,11 @@ Then visit `http://localhost:8000/docs` for interactive API docs.
 ### Frontend
 
 A minimal Next.js (App Router, TypeScript, Tailwind) UI lives in `/frontend` -
-ticker grid, an explanation page (sections/citations/glossary), and a
-risk-profile preferences form. Auth is Supabase email/password via `@supabase/supabase-js`
-directly in the browser (no custom backend auth).
+a stock ticker grid with price charts and stats, an ETF grid (US and Canada)
+with holdings/sector breakdowns, a Learn section with short educational
+write-ups, an explanation page (sections/citations/glossary) for stocks, and
+a risk-profile preferences form. Auth is Supabase email/password via
+`@supabase/supabase-js` directly in the browser (no custom backend auth).
 
 ```bash
 cd frontend
@@ -139,13 +166,18 @@ backend's `.env` includes the frontend's origin.
 
 ## API
 
-| Endpoint                | Auth     | Notes                                                                                                                                                                    |
-| ----------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /tickers`          | none     | Supported tickers + latest ingested quarter                                                                                                                             |
-| `GET /explain/{ticker}` | optional | 404 if unsupported/not yet ingested. Cached explanations are free to read anonymously; generating a new one (cache miss) requires sign-in, since it burns Groq quota. Adapts to the caller's risk profile if signed in and onboarded. |
-| `GET /onboarding`       | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed. |
-| `POST /onboarding`      | required | 5-question preferences form -> upserts a risk profile                                                                                                                               |
-| `GET /health`           | none     | Liveness check                                                                                                                                                          |
+| Endpoint                     | Auth     | Notes                                                                                                                                                                    |
+| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET /tickers`                | none     | Supported stock tickers + latest ingested quarter                                                                                                                        |
+| `GET /explain/{ticker}`       | optional | 404 if unsupported/not yet ingested. Cached explanations are free to read anonymously; generating a new one (cache miss) requires sign-in, since it burns Groq quota. Adapts to the caller's risk profile if signed in and onboarded. |
+| `GET /chart/{ticker}`         | none     | Price history for a supported stock or ETF ticker. `range` query param (default `1M`); 404 if unsupported, 502 if the upstream data source fails.                       |
+| `GET /stats/{ticker}`         | none     | Valuation/profitability and risk/performance metrics for a supported stock or ETF ticker. 404 if unsupported, 502 if the upstream data source fails.                    |
+| `GET /etfs`                   | none     | Top 15 supported US ETFs                                                                                                                                                 |
+| `GET /etfs/ca`                | none     | Top 15 supported Canadian ETFs                                                                                                                                           |
+| `GET /etfs/{ticker}/holdings` | none     | Top holdings and sector breakdown for a supported ETF. 404 if unsupported, 502 if the upstream data source fails.                                                        |
+| `GET /onboarding`             | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed.                                                                          |
+| `POST /onboarding`            | required | 5-question preferences form -> upserts a risk profile                                                                                                                    |
+| `GET /health`                 | none     | Liveness check                                                                                                                                                            |
 
 Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>`.
 
@@ -204,6 +236,15 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
 - Embeddings are generated locally (`fastembed`, ONNX, `BAAI/bge-small-en-v1.5`)
   rather than via a paid API, since Groq doesn't serve an embeddings model
   and the brief didn't provision a separate embeddings key.
+- Chart, stats, and ETF-holdings data (`core/market_data.py`,
+  `core/ticker_stats.py`, `core/etf_holdings.py`) comes live from
+  `yfinance` on every request rather than being cached or ingested - it's
+  read-only market data, not AI-generated content, so there's no
+  correctness reason to cache it and it costs no LLM/embedding quota to
+  serve. Sharpe ratio, Sortino ratio, and alpha aren't provided by
+  yfinance directly and are computed from trailing 1-year daily returns
+  (methodology documented in `core/ticker_stats.py`); P/E, P/B, PEG,
+  dividend yield, and beta are read straight from Yahoo's data.
 
 See `CLAUDE.md` for the full build history, gotchas, and design
 decisions behind the choices above.

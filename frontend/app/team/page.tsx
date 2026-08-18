@@ -3,12 +3,12 @@ import Image from "next/image";
 const TEAM = [
   {
     name: "Vincent Luong",
-    role: "Founder",
+    role: "Founder / Developer",
     image: "/team-1.png",
   },
   {
     name: "Aadit Rao",
-    role: "Lead Developer",
+    role: "Developer",
     image: "/team-2.jpeg",
   },
 ];

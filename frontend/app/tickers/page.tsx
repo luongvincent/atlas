@@ -19,9 +19,12 @@ export default function TickersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Supported tickers</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Stocks</h1>
+
+      <h2 className="mt-6 text-xl font-bold tracking-tight text-slate-900">Top 15 US Stocks</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Plain-language explanations of the latest earnings call for each ticker. Pick one to read it.
+        The most actively traded US stocks by average daily volume, individual companies only with
+        plain-language explanations of the latest earnings call for each.
       </p>
 
       {error && (
