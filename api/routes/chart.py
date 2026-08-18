@@ -6,6 +6,8 @@ import logging
 from fastapi import APIRouter, HTTPException, Query, status
 
 from api.schemas import ChartResponse
+from config.etf_tickers import ETFS_BY_SYMBOL
+from config.etf_tickers_ca import ETFS_CA_BY_SYMBOL
 from config.tickers import TICKERS_BY_SYMBOL
 from core.market_data import ChartRange, NoChartDataError, fetch_chart_data
 
@@ -19,7 +21,7 @@ async def get_chart(
     chart_range: ChartRange = Query("1M", alias="range"),
 ) -> ChartResponse:
     ticker = ticker.upper()
-    if ticker not in TICKERS_BY_SYMBOL:
+    if ticker not in TICKERS_BY_SYMBOL and ticker not in ETFS_BY_SYMBOL and ticker not in ETFS_CA_BY_SYMBOL:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ticker: {ticker}")
 
     try:

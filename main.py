@@ -5,6 +5,7 @@ from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 
 from api.routes.chart import router as chart_router
+from api.routes.etfs import router as etfs_router
 from api.routes.explain import router as explain_router
 from api.routes.onboarding import router as onboarding_router
 from api.routes.stats import router as stats_router
@@ -39,6 +40,7 @@ app.include_router(explain_router)
 app.include_router(onboarding_router)
 app.include_router(chart_router)
 app.include_router(stats_router)
+app.include_router(etfs_router)
 
 
 @app.get("/health")

@@ -7,7 +7,8 @@ import { usePathname } from "next/navigation";
 import { useAuth } from "./AuthProvider";
 
 const NAV_LINKS = [
-  { href: "/tickers", label: "Tickers" },
+  { href: "/tickers", label: "Stocks" },
+  { href: "/etfs", label: "ETFs" },
   { href: "/learn", label: "Learn" },
   { href: "/onboarding", label: "Preferences" },
   { href: "/team", label: "Team" },

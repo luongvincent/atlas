@@ -58,3 +58,15 @@ class ChartResponse(BaseModel):
     range: str
     interval: str
     points: list[ChartPoint]
+
+
+class EtfResponse(BaseModel):
+    ticker: str
+    name: str
+    avg_daily_volume: int
+    exchange: str
+    category: str
+
+
+class EtfsListResponse(BaseModel):
+    etfs: list[EtfResponse]
