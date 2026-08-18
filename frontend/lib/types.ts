@@ -88,3 +88,32 @@ export interface TickerStats {
   sharpe_ratio: number | null;
   sortino_ratio: number | null;
 }
+
+export interface EtfInfo {
+  ticker: string;
+  name: string;
+  avg_daily_volume: number;
+  exchange: string;
+  category: string;
+}
+
+export interface EtfsListResponse {
+  etfs: EtfInfo[];
+}
+
+export interface HoldingEntry {
+  ticker: string;
+  name: string;
+  weight_percent: number;
+}
+
+export interface SectorWeight {
+  sector: string;
+  weight_percent: number;
+}
+
+export interface EtfHoldings {
+  ticker: string;
+  top_holdings: HoldingEntry[];
+  sector_weightings: SectorWeight[];
+}

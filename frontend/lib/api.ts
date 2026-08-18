@@ -2,6 +2,8 @@ import type {
   ApiErrorBody,
   ChartRangeOption,
   ChartResponse,
+  EtfHoldings,
+  EtfsListResponse,
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
@@ -73,6 +75,18 @@ export function getChart(ticker: string, range: ChartRangeOption): Promise<Chart
 
 export function getStats(ticker: string): Promise<TickerStats> {
   return request<TickerStats>(`/stats/${encodeURIComponent(ticker)}`);
+}
+
+export function getEtfs(): Promise<EtfsListResponse> {
+  return request<EtfsListResponse>("/etfs");
+}
+
+export function getEtfsCa(): Promise<EtfsListResponse> {
+  return request<EtfsListResponse>("/etfs/ca");
+}
+
+export function getEtfHoldings(ticker: string): Promise<EtfHoldings> {
+  return request<EtfHoldings>(`/etfs/${encodeURIComponent(ticker)}/holdings`);
 }
 
 export async function getOnboarding(
