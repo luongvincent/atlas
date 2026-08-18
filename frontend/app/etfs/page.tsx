@@ -14,13 +14,13 @@ const REGION_COPY: Record<Region, { tab: string; title: string; description: str
     tab: "US",
     title: "Top 15 US ETFs",
     description:
-      "The most actively traded US ETFs by volume, excluding leveraged and inverse funds - those are daily-reset trading products, not something to buy and hold for retirement.",
+      "The most actively traded US ETFs by volume, excluding leveraged and inverse funds built for short-term trading rather than long-term investing.",
   },
   ca: {
     tab: "Canada",
     title: "Top 15 Canadian ETFs",
     description:
-      "Ranked by volume within the Canadian (TSX/NEO) market on its own terms - Canadian ETFs trade at a fraction of US volume, so this isn't a subset of the US list. Note: popular buy-and-hold funds like VFV don't always crack a volume ranking, since many holders rarely trade them.",
+      "The most actively traded Canadian ETFs by volume, ranked separately from the US list since Canadian markets trade at a much smaller scale.",
   },
 };
 
