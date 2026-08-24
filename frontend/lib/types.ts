@@ -133,3 +133,16 @@ export interface StrategyOverviewResponse {
   generated_at: string | null;
   disclaimer: string;
 }
+
+export interface SimilarItem {
+  ticker: string;
+  name: string;
+  kind: "stock" | "etf";
+  avg_daily_volume: number;
+  reason: string;
+}
+
+export interface SimilarItemsResponse {
+  ticker: string;
+  items: SimilarItem[];
+}
