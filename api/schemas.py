@@ -12,6 +12,7 @@ from core.risk_profile import (
     RiskProfileLabel,
     TimeHorizon,
 )
+from core.similar_items import SimilarItem
 from core.strategy_overview import StrategyOverviewSections
 
 
@@ -84,3 +85,8 @@ class StrategyOverviewResponse(BaseModel):
         "financial advice. It never names specific stocks or funds to buy. Talk to a licensed "
         "financial advisor before making real decisions with your money."
     )
+
+
+class SimilarItemsResponse(BaseModel):
+    ticker: str
+    items: list[SimilarItem]

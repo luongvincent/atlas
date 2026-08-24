@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
 import { Skeleton } from "@/components/Skeleton";
+import { RecommendedArticles } from "@/components/RecommendedArticles";
 import { StrategyOverview } from "@/components/StrategyOverview";
 import { ApiError, getOnboarding, submitOnboarding } from "@/lib/api";
 import type {
@@ -259,6 +260,10 @@ export default function OnboardingPage() {
       ) : null}
 
       {!showForm && savedProfile && session && <StrategyOverview accessToken={session.access_token} />}
+
+      {!showForm && savedProfile && (
+        <RecommendedArticles experience={savedProfile.investing_experience} />
+      )}
 
       {showForm && (
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">

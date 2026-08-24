@@ -7,6 +7,7 @@ import { Badge } from "@/components/Badge";
 import { HoldingsBreakdown } from "@/components/HoldingsBreakdown";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
+import { SimilarItems } from "@/components/SimilarItems";
 import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getEtfs, getEtfsCa } from "@/lib/api";
 import type { EtfInfo } from "@/lib/types";
@@ -84,6 +85,8 @@ export default function EtfDetailPage({ params }: { params: { ticker: string } }
           <StatsGrid ticker={ticker} />
 
           <HoldingsBreakdown ticker={ticker} />
+
+          <SimilarItems ticker={ticker} />
         </>
       )}
     </div>
