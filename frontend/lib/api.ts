@@ -7,6 +7,8 @@ import type {
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
+  SimilarItemsResponse,
+  StrategyOverviewResponse,
   TickerStats,
   TickersListResponse,
 } from "./types";
@@ -87,6 +89,14 @@ export function getEtfsCa(): Promise<EtfsListResponse> {
 
 export function getEtfHoldings(ticker: string): Promise<EtfHoldings> {
   return request<EtfHoldings>(`/etfs/${encodeURIComponent(ticker)}/holdings`);
+}
+
+export function getStrategyOverview(accessToken: string): Promise<StrategyOverviewResponse> {
+  return request<StrategyOverviewResponse>("/strategy-overview", { accessToken });
+}
+
+export function getSimilarItems(ticker: string): Promise<SimilarItemsResponse> {
+  return request<SimilarItemsResponse>(`/similar/${encodeURIComponent(ticker)}`);
 }
 
 export async function getOnboarding(

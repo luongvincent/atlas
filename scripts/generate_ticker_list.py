@@ -55,6 +55,8 @@ def filter_individual_companies(symbols: list[str]) -> list[dict]:
                 "company_name": info.get("shortName") or info.get("longName") or symbol,
                 "avg_daily_volume": int(avg_volume),
                 "exchange": info.get("exchange", ""),
+                "sector": info.get("sector", ""),
+                "industry": info.get("industry", ""),
             }
         )
 
@@ -83,7 +85,9 @@ def main() -> None:
             f'ticker="{row["ticker"]}", '
             f'company_name={row["company_name"]!r}, '
             f'avg_daily_volume={row["avg_daily_volume"]}, '
-            f'exchange="{row["exchange"]}"'
+            f'exchange="{row["exchange"]}", '
+            f'sector="{row["sector"]}", '
+            f'industry="{row["industry"]}"'
             "),"
         )
     print("]")

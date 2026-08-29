@@ -12,6 +12,8 @@ from core.risk_profile import (
     RiskProfileLabel,
     TimeHorizon,
 )
+from core.similar_items import SimilarItem
+from core.strategy_overview import StrategyOverviewSections
 
 
 class TickerResponse(BaseModel):
@@ -70,3 +72,21 @@ class EtfResponse(BaseModel):
 
 class EtfsListResponse(BaseModel):
     etfs: list[EtfResponse]
+
+
+class StrategyOverviewResponse(BaseModel):
+    risk_profile: RiskProfileLabel
+    investing_experience: InvestingExperience
+    sections: StrategyOverviewSections
+    cached: bool
+    generated_at: str | None = None
+    disclaimer: str = (
+        "This is a general, AI-generated overview of common investing patterns - not personalized "
+        "financial advice. It never names specific stocks or funds to buy. Talk to a licensed "
+        "financial advisor before making real decisions with your money."
+    )
+
+
+class SimilarItemsResponse(BaseModel):
+    ticker: str
+    items: list[SimilarItem]

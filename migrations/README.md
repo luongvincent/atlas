@@ -11,6 +11,9 @@ supabase db execute --file migrations/004_risk_profiles.sql
 supabase db execute --file migrations/005_request_logs.sql
 supabase db execute --file migrations/006_cached_explanations.sql
 supabase db execute --file migrations/007_tickers_latest_call.sql
+supabase db execute --file migrations/008_grants.sql
+supabase db execute --file migrations/009_cached_strategy_overviews.sql
+supabase db execute --file migrations/010_cached_strategy_overviews_update_grant.sql
 ```
 
 After running them, seed the `tickers` reference table from
@@ -29,6 +32,7 @@ python scripts/seed_tickers.py
 | `risk_profiles`         | onboarding preferences results                  | `user_id = auth.uid()`   |
 | `request_logs`          | per-request latency/status audit trail   | `user_id = auth.uid()` (or `null` for anonymous, write-only) |
 | `cached_explanations`   | shared `/explain` cache, keyed on (ticker, quarter) | none - public read, authenticated write |
+| `cached_strategy_overviews` | shared `/strategy-overview` cache, keyed on (risk_profile, investing_experience) | none - public read, authenticated write |
 
 Every table has RLS enabled. `tickers` and `cached_explanations` don't hold
 per-user data, so their policies aren't ownership-scoped, but RLS is still

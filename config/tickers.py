@@ -25,24 +25,29 @@ class TickerInfo:
     company_name: str
     avg_daily_volume: int
     exchange: str
+    sector: str
+    industry: str
 
 
+# sector/industry fetched live via yfinance's Ticker.info on 2026-08-23 -
+# see the "similar tickers" recommender in core/similar_items.py, which
+# groups stocks by sector the same way ETFs are grouped by category.
 SUPPORTED_TICKERS: list[TickerInfo] = [
-    TickerInfo(ticker="NVDA", company_name="NVIDIA Corporation", avg_daily_volume=134_604_800, exchange="NMS"),
-    TickerInfo(ticker="INTC", company_name="Intel Corporation", avg_daily_volume=115_042_580, exchange="NMS"),
-    TickerInfo(ticker="NOK", company_name="Nokia Corporation Sponsored", avg_daily_volume=82_459_360, exchange="NYQ"),
-    TickerInfo(ticker="SOFI", company_name="SoFi Technologies, Inc.", avg_daily_volume=78_231_800, exchange="NMS"),
-    TickerInfo(ticker="ONDS", company_name="Ondas Holdings Inc.", avg_daily_volume=68_263_700, exchange="NCM"),
-    TickerInfo(ticker="AAPL", company_name="Apple Inc.", avg_daily_volume=63_789_980, exchange="NMS"),
-    TickerInfo(ticker="AMZN", company_name="Amazon.com, Inc.", avg_daily_volume=62_557_750, exchange="NMS"),
-    TickerInfo(ticker="PATH", company_name="UiPath, Inc.", avg_daily_volume=60_232_610, exchange="NYQ"),
-    TickerInfo(ticker="PLTR", company_name="Palantir Technologies Inc.", avg_daily_volume=59_936_790, exchange="NMS"),
-    TickerInfo(ticker="AAL", company_name="American Airlines Group, Inc.", avg_daily_volume=59_708_230, exchange="NMS"),
-    TickerInfo(ticker="F", company_name="Ford Motor Company", avg_daily_volume=58_094_880, exchange="NYQ"),
-    TickerInfo(ticker="T", company_name="AT&T Inc.", avg_daily_volume=57_586_980, exchange="NYQ"),
-    TickerInfo(ticker="PLUG", company_name="Plug Power, Inc.", avg_daily_volume=53_147_610, exchange="NCM"),
-    TickerInfo(ticker="NU", company_name="Nu Holdings Ltd.", avg_daily_volume=52_306_160, exchange="NYQ"),
-    TickerInfo(ticker="SNAP", company_name="Snap Inc.", avg_daily_volume=48_889_480, exchange="NYQ"),
+    TickerInfo(ticker="NVDA", company_name="NVIDIA Corporation", avg_daily_volume=134_604_800, exchange="NMS", sector="Technology", industry="Semiconductors"),
+    TickerInfo(ticker="INTC", company_name="Intel Corporation", avg_daily_volume=115_042_580, exchange="NMS", sector="Technology", industry="Semiconductors"),
+    TickerInfo(ticker="NOK", company_name="Nokia Corporation Sponsored", avg_daily_volume=82_459_360, exchange="NYQ", sector="Technology", industry="Communication Equipment"),
+    TickerInfo(ticker="SOFI", company_name="SoFi Technologies, Inc.", avg_daily_volume=78_231_800, exchange="NMS", sector="Financial Services", industry="Credit Services"),
+    TickerInfo(ticker="ONDS", company_name="Ondas Holdings Inc.", avg_daily_volume=68_263_700, exchange="NCM", sector="Technology", industry="Communication Equipment"),
+    TickerInfo(ticker="AAPL", company_name="Apple Inc.", avg_daily_volume=63_789_980, exchange="NMS", sector="Technology", industry="Consumer Electronics"),
+    TickerInfo(ticker="AMZN", company_name="Amazon.com, Inc.", avg_daily_volume=62_557_750, exchange="NMS", sector="Consumer Cyclical", industry="Internet Retail"),
+    TickerInfo(ticker="PATH", company_name="UiPath, Inc.", avg_daily_volume=60_232_610, exchange="NYQ", sector="Technology", industry="Software - Infrastructure"),
+    TickerInfo(ticker="PLTR", company_name="Palantir Technologies Inc.", avg_daily_volume=59_936_790, exchange="NMS", sector="Technology", industry="Software - Infrastructure"),
+    TickerInfo(ticker="AAL", company_name="American Airlines Group, Inc.", avg_daily_volume=59_708_230, exchange="NMS", sector="Industrials", industry="Airlines"),
+    TickerInfo(ticker="F", company_name="Ford Motor Company", avg_daily_volume=58_094_880, exchange="NYQ", sector="Consumer Cyclical", industry="Auto Manufacturers"),
+    TickerInfo(ticker="T", company_name="AT&T Inc.", avg_daily_volume=57_586_980, exchange="NYQ", sector="Communication Services", industry="Telecom Services"),
+    TickerInfo(ticker="PLUG", company_name="Plug Power, Inc.", avg_daily_volume=53_147_610, exchange="NCM", sector="Industrials", industry="Electrical Equipment & Parts"),
+    TickerInfo(ticker="NU", company_name="Nu Holdings Ltd.", avg_daily_volume=52_306_160, exchange="NYQ", sector="Financial Services", industry="Banks - Regional"),
+    TickerInfo(ticker="SNAP", company_name="Snap Inc.", avg_daily_volume=48_889_480, exchange="NYQ", sector="Communication Services", industry="Internet Content & Information"),
 ]
 
 TICKERS_BY_SYMBOL: dict[str, TickerInfo] = {t.ticker: t for t in SUPPORTED_TICKERS}

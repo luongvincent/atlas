@@ -23,7 +23,15 @@ from config import get_settings
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "llama-3.3-70b-versatile"
+# The original brief specified llama-3.3-70b-versatile; Groq deprecated it
+# at some point after this project was built (confirmed live: the model no
+# longer appears in this account's /models list at all, and calls to it
+# 404 with "model_not_found"). openai/gpt-oss-120b is the current
+# replacement - verified it supports .with_structured_output() cleanly via
+# a live call before switching, since not every hosted model handles
+# structured/tool-call output the same way. Re-check Groq's available
+# models if this ever breaks again the same way.
+MODEL_NAME = "openai/gpt-oss-120b"
 
 RETRYABLE_ERRORS = (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError)
 
