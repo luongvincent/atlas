@@ -7,6 +7,7 @@ import type {
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
+  SentimentResult,
   SimilarItemsResponse,
   StrategyOverviewResponse,
   TickerStats,
@@ -113,4 +114,7 @@ export async function getOnboarding(
 
     throw err;
   }
+}
+export function getSentiment(ticker: string): Promise<SentimentResult> {
+  return request<SentimentResult>(`/sentiment/${encodeURIComponent(ticker)}`);
 }
