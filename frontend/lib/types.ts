@@ -146,3 +146,12 @@ export interface SimilarItemsResponse {
   ticker: string;
   items: SimilarItem[];
 }
+
+export interface SentimentResult {
+  ticker: string;
+  quarter: string;
+  chunk_count: number;
+  overall: number;
+  prepared_remarks: number | null;
+  qa: number | null;
+}

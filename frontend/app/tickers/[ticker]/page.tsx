@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
+import { SentimentCard } from "@/components/SentimentCard";
 import { SimilarItems } from "@/components/SimilarItems";
 import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getExplanation } from "@/lib/api";
@@ -78,6 +79,8 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       </div>
 
       <StatsGrid ticker={ticker} />
+
+      <SentimentCard ticker={ticker} />
 
       <SimilarItems ticker={ticker} />
 
