@@ -23,7 +23,9 @@ from config import get_settings
 
 logger = logging.getLogger(__name__)
 
-MODEL_NAME = "llama-3.3-70b-versatile"
+# llama-3.3-70b-versatile (the original pick) was removed from Groq's catalog -
+# calls returned 404 model_not_found. Re-check `Groq().models.list()` if this 404s again.
+MODEL_NAME = "openai/gpt-oss-120b"
 
 RETRYABLE_ERRORS = (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError)
 

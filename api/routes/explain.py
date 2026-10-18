@@ -159,6 +159,16 @@ async def explain(
         latency_ms = int((time.monotonic() - start) * 1000)
         _log_request(client, user, ticker, status.HTTP_404_NOT_FOUND, latency_ms)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except Exception as exc:
+        # An unhandled error here becomes a bare 500 with no CORS headers, which
+        # the browser reports as a network failure instead of a readable message.
+        logger.exception("Explanation generation failed for %s %s", ticker, quarter)
+        latency_ms = int((time.monotonic() - start) * 1000)
+        _log_request(client, user, ticker, status.HTTP_502_BAD_GATEWAY, latency_ms)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="We couldn't generate this explanation right now. Please try again in a few minutes.",
+        ) from exc
 
     latency_ms = int((time.monotonic() - start) * 1000)
     logger.info("Generated explanation for %s %s in %dms", ticker, quarter, latency_ms)
