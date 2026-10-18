@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 
 import { AuthProvider } from "@/components/AuthProvider";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 
 import "./globals.css";
+
+const serif = Source_Serif_4({ subsets: ["latin"], variable: "--font-serif", display: "swap" });
 
 export const metadata: Metadata = {
   title: "Atlas Capital - Stocks, plainly explained.",
@@ -13,7 +16,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className={serif.variable}>
       <body className="flex min-h-screen flex-col">
         <AuthProvider>
           <Header />

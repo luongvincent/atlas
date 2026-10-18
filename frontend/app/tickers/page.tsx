@@ -19,12 +19,10 @@ export default function TickersPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Stocks</h1>
-
-      <h2 className="mt-6 text-xl font-bold tracking-tight text-slate-900">Top 15 US Stocks</h2>
-      <p className="mt-1 text-sm text-slate-600">
-        The most actively traded US stocks by average daily volume, individual companies only with
-        plain-language explanations of the latest earnings call for each.
+      <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Top 15 US stocks</h1>
+      <p className="mt-3 max-w-[65ch] font-serif text-lg leading-8 text-slate-700">
+        The companies people trade most, each with a plain-language explanation of its latest earnings
+        call: what happened, what management said, and why it matters.
       </p>
 
       {error && (
@@ -32,24 +30,25 @@ export default function TickersPage() {
       )}
 
       {!tickers && !error && (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <div className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-slate-200 bg-white p-4 shadow-card">
-              <Skeleton className="h-5 w-16" />
-              <Skeleton className="mt-2 h-4 w-32" />
-              <Skeleton className="mt-4 h-3 w-40" />
-              <Skeleton className="mt-3 h-5 w-24 rounded-full" />
+            <div key={i} className="flex items-center gap-4 px-2 py-5">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div>
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="mt-2 h-4 w-64" />
+              </div>
             </div>
           ))}
         </div>
       )}
 
       {tickers && (
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+        <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
           {tickers.map((t) => (
             <TickerCard key={t.ticker} ticker={t} />
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

@@ -4,8 +4,6 @@
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
-  background-image: radial-gradient(circle at top, theme("colors.brand.50") 0%, transparent 55%);
-  background-attachment: fixed;
 }
 
 /* Visible, on-brand focus ring everywhere - HCI heuristic #7/#10

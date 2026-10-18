@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { useAuth } from "./AuthProvider";
+import { Button } from "./Button";
 
 export function LoginForm() {
   const { signIn, signUp } = useAuth();
@@ -68,8 +69,9 @@ export function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-3.5">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Email</label>
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-slate-700">Email</label>
           <input
+            id="email"
             type="email"
             required
             autoComplete="email"
@@ -79,8 +81,9 @@ export function LoginForm() {
           />
         </div>
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700">Password</label>
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">Password</label>
           <input
+            id="password"
             type="password"
             required
             minLength={6}
@@ -91,15 +94,15 @@ export function LoginForm() {
           />
         </div>
 
-        {error && <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+        {error && (
+          <p role="alert" className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </p>
+        )}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-lg bg-brand-600 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-        >
+        <Button type="submit" size="md" disabled={submitting} className="w-full">
           {submitting ? "One moment..." : mode === "signin" ? "Sign in" : "Create account"}
-        </button>
+        </Button>
       </form>
     </div>
   );

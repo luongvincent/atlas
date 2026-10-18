@@ -5,18 +5,64 @@ import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
+import { Button } from "@/components/Button";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
 import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getExplanation } from "@/lib/api";
 import type { ExplainResponse } from "@/lib/types";
 
-const SECTIONS: { key: keyof ExplainResponse["sections"]; label: string; step: string }[] = [
-  { key: "what_happened", label: "What happened", step: "01" },
-  { key: "what_management_said", label: "What management actually said", step: "02" },
-  { key: "what_analysts_pushed_back_on", label: "What analysts pushed back on", step: "03" },
-  { key: "why_it_matters", label: "Why it matters", step: "04" },
+const SECTIONS: { key: keyof ExplainResponse["sections"]; label: string }[] = [
+  { key: "what_happened", label: "What happened" },
+  { key: "what_management_said", label: "What management actually said" },
+  { key: "what_analysts_pushed_back_on", label: "What analysts pushed back on" },
+  { key: "why_it_matters", label: "Why it matters" },
 ];
+
+// Words that signal a prediction rather than a promise. Underline as well as
+// tint so the meaning doesn't rely on color alone.
+const HEDGE_WORDS = /\b(expect(?:s|ed|ing)?|anticipate[sd]?|believe[sd]?|hope[sd]?|may|might|could|approximately|roughly)\b/i;
+
+function highlightHedges(text: string) {
+  // split() with a capture group puts the matched words at odd indexes.
+  return text.split(new RegExp(HEDGE_WORDS.source, "gi")).map((part, i) =>
+    i % 2 === 1 ? (
+      <mark key={i} className="rounded-sm bg-moderate-100 px-0.5 text-slate-900 underline decoration-moderate-600 decoration-dotted underline-offset-4">
+        {part}
+      </mark>
+    ) : (
+      part
+    ),
+  );
+}
+
+function SectionBody({ sectionKey, text }: { sectionKey: string; text: string }) {
+  if (sectionKey === "what_happened") {
+    // Lead with the headline sentence, set large.
+    const [lede, ...rest] = text.split(/(?<=[.!?])\s+/);
+    return (
+      <>
+        <p className="mt-3 font-serif text-2xl font-semibold leading-snug text-slate-900">{lede}</p>
+        {rest.length > 0 && (
+          <p className="mt-4 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700">{rest.join(" ")}</p>
+        )}
+      </>
+    );
+  }
+  const hedged = sectionKey === "what_management_said";
+  return (
+    <>
+      <p className="mt-3 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700">
+        {hedged ? highlightHedges(text) : text}
+      </p>
+      {hedged && (
+        <p className="mt-3 font-sans text-sm text-slate-500">
+          Highlighted words mean the company is predicting, not promising.
+        </p>
+      )}
+    </>
+  );
+}
 
 export default function TickerExplainPage({ params }: { params: { ticker: string } }) {
   const ticker = params.ticker.toUpperCase();
@@ -57,10 +103,10 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           </div>
 
           {data.generated_at && (
-            <p className="mt-1 text-xs text-slate-400">
-              Generated {new Date(data.generated_at).toLocaleDateString()}
-              {data.cached && " · served from cache"}
-            </p>
+            <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
+              <span>Generated {new Date(data.generated_at).toLocaleDateString()}</span>
+              <Badge tone={data.cached ? "neutral" : "positive"}>{data.cached ? "Cached" : "Fresh"}</Badge>
+            </div>
           )}
 
           <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
@@ -82,7 +128,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
         <div className="mt-6 space-y-4">
           <Skeleton className="h-4 w-64" />
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
+            <div key={i} className="max-w-[65ch] border-t border-slate-200 pt-6">
               <Skeleton className="h-5 w-48" />
               <Skeleton className="mt-3 h-3 w-full" />
               <Skeleton className="mt-2 h-3 w-5/6" />
@@ -104,12 +150,9 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             </p>
           )}
           {user && (
-            <button
-              onClick={load}
-              className="mt-3 rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-            >
+            <Button onClick={load} className="mt-3">
               Retry now that you're signed in
-            </button>
+            </Button>
           )}
         </div>
       )}
@@ -121,27 +164,20 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       )}
 
       {error && error.status !== 401 && error.status !== 404 && (
-        <p className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-          {error.message}
-        </p>
+        <div role="alert" className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-4">
+          <p className="text-sm text-red-700">{error.message}</p>
+          <Button onClick={load} className="mt-3">
+            Try again
+          </Button>
+        </div>
       )}
 
       {data && (
-        <div className="mt-6 space-y-6">
-          {SECTIONS.map(({ key, label, step }) => (
-            <section
-              key={key}
-              className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card transition-shadow hover:shadow-card-hover"
-            >
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold tabular-nums text-brand-700">
-                  {step}
-                </span>
-                <h2 className="text-lg font-semibold tracking-tight text-slate-900">{label}</h2>
-              </div>
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-slate-700">
-                {data.sections[key]}
-              </p>
+        <div className="mt-10 max-w-[65ch] space-y-10">
+          {SECTIONS.map(({ key, label }) => (
+            <section key={key} className="border-t border-slate-200 pt-6">
+              <h2 className="text-sm font-semibold text-brand-700">{label}</h2>
+              <SectionBody sectionKey={key} text={data.sections[key]} />
             </section>
           ))}
 
@@ -165,8 +201,8 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           )}
 
           {data.citations.length > 0 && (
-            <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
-              <h2 className="text-base font-semibold text-slate-900">Citations</h2>
+            <section className="border-t border-slate-200 pt-6">
+              <h2 className="text-sm font-semibold text-brand-700">Citations</h2>
               <ul className="mt-3 space-y-3">
                 {data.citations.map((c, i) => (
                   <li key={i} className="flex gap-3 text-sm">
@@ -175,7 +211,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
                     </span>
                     <p className="text-slate-700">
                       <span className="font-medium text-slate-900">{c.speaker}</span>{" "}
-                      <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                      <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
                         {c.section === "qa" ? "Q&A" : "Prepared remarks"}
                       </span>
                       <br />
