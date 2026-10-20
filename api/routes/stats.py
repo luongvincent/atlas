@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, status
 from config.etf_tickers import ETFS_BY_SYMBOL
 from config.etf_tickers_ca import ETFS_CA_BY_SYMBOL
 from config.tickers import TICKERS_BY_SYMBOL
+from core.symbols import is_valid_symbol
 from core.ticker_stats import TickerStats, fetch_ticker_stats
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,9 @@ router = APIRouter()
 @router.get("/stats/{ticker}", response_model=TickerStats)
 async def get_stats(ticker: str) -> TickerStats:
     ticker = ticker.upper()
-    if ticker not in TICKERS_BY_SYMBOL and ticker not in ETFS_BY_SYMBOL and ticker not in ETFS_CA_BY_SYMBOL:
+    known = ticker in TICKERS_BY_SYMBOL or ticker in ETFS_BY_SYMBOL or ticker in ETFS_CA_BY_SYMBOL
+    # Any well-formed symbol is allowed so searched stocks outside the top 15 get stats.
+    if not known and not is_valid_symbol(ticker):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ticker: {ticker}")
 
     try:

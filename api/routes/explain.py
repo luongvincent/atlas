@@ -104,7 +104,7 @@ async def explain(
     ticker = ticker.upper()
     ticker_info = TICKERS_BY_SYMBOL.get(ticker)
     if ticker_info is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ticker: {ticker}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"We don't have an explanation for {ticker} yet.")
 
     client = get_request_client(access_token=user.access_token if user else None)
 

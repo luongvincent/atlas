@@ -29,6 +29,7 @@ python scripts/seed_tickers.py
 | `risk_profiles`         | onboarding preferences results                  | `user_id = auth.uid()`   |
 | `request_logs`          | per-request latency/status audit trail   | `user_id = auth.uid()` (or `null` for anonymous, write-only) |
 | `cached_explanations`   | shared `/explain` cache, keyed on (ticker, quarter) | none - public read, authenticated write |
+| `explanation_requests`  | "please explain this stock" requests for tickers outside the top 15 | `user_id = auth.uid()` |
 
 Every table has RLS enabled. `tickers` and `cached_explanations` don't hold
 per-user data, so their policies aren't ownership-scoped, but RLS is still

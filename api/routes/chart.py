@@ -10,6 +10,7 @@ from config.etf_tickers import ETFS_BY_SYMBOL
 from config.etf_tickers_ca import ETFS_CA_BY_SYMBOL
 from config.tickers import TICKERS_BY_SYMBOL
 from core.market_data import ChartRange, NoChartDataError, fetch_chart_data
+from core.symbols import is_valid_symbol
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -21,7 +22,9 @@ async def get_chart(
     chart_range: ChartRange = Query("1M", alias="range"),
 ) -> ChartResponse:
     ticker = ticker.upper()
-    if ticker not in TICKERS_BY_SYMBOL and ticker not in ETFS_BY_SYMBOL and ticker not in ETFS_CA_BY_SYMBOL:
+    known = ticker in TICKERS_BY_SYMBOL or ticker in ETFS_BY_SYMBOL or ticker in ETFS_CA_BY_SYMBOL
+    # Any well-formed symbol is allowed so searched stocks outside the top 15 get a chart.
+    if not known and not is_valid_symbol(ticker):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ticker: {ticker}")
 
     try:
