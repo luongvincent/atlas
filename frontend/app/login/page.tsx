@@ -29,7 +29,7 @@ export default function LoginPage() {
         className="mb-4 h-14 w-14 rounded-lg object-cover shadow-card"
         priority
       />
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-slate-900">Atlas Capital</h1>
+      <h1 className="mb-1 font-serif text-3xl font-semibold tracking-tight text-slate-900">Atlas Capital</h1>
       <p className="mb-1 text-sm font-medium text-brand-700">Stocks, plainly explained.</p>
       <p className="mb-8 text-sm text-slate-600">Sign in to generate and personalize explanations.</p>
       <LoginForm />

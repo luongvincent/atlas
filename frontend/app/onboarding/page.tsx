@@ -230,14 +230,14 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-xl text-center">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Explanation Preferences</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-serif text-3xl font-semibold tracking-tight text-slate-900">Explanation preferences</h1>
+      <p className="mt-2 font-serif text-lg leading-8 text-slate-700">
         5 quick questions. We use this to adjust the tone and depth of your explanations - not to
         give investment advice.
       </p>
 
       {!showForm && savedProfile ? (
-        <div className="mt-6 flex flex-col items-center rounded-2xl border border-brand-100 bg-gradient-to-b from-brand-50/60 to-white p-8 text-center shadow-card">
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-xl shadow-card">
             🎯
           </span>
