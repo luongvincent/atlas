@@ -7,6 +7,8 @@ import type {
   ExplainResponse,
   OnboardingRequest,
   OnboardingResponse,
+  SearchKind,
+  SearchResponse,
   TickerStats,
   TickersListResponse,
 } from "./types";
@@ -50,6 +52,18 @@ async function request<T>(path: string, options: RequestInit & { accessToken?: s
 
 export function getTickers(): Promise<TickersListResponse> {
   return request<TickersListResponse>("/tickers");
+}
+
+export function searchStocks(query: string, kind: SearchKind, signal?: AbortSignal): Promise<SearchResponse> {
+  return request<SearchResponse>(`/search?q=${encodeURIComponent(query)}&type=${kind}`, { signal });
+}
+
+export function requestExplanation(ticker: string, accessToken: string): Promise<{ ticker: string }> {
+  return request<{ ticker: string }>("/explanation-requests", {
+    method: "POST",
+    body: JSON.stringify({ ticker }),
+    accessToken,
+  });
 }
 
 export function getExplanation(ticker: string, accessToken?: string): Promise<ExplainResponse> {

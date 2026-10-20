@@ -9,7 +9,7 @@ import { Button } from "@/components/Button";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
 import { StatsGrid } from "@/components/StatsGrid";
-import { ApiError, getExplanation } from "@/lib/api";
+import { ApiError, getExplanation, requestExplanation } from "@/lib/api";
 import type { ExplainResponse } from "@/lib/types";
 
 const SECTIONS: { key: keyof ExplainResponse["sections"]; label: string }[] = [
@@ -71,6 +71,21 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
   const [data, setData] = useState<ExplainResponse | null>(null);
   const [error, setError] = useState<ApiError | null>(null);
   const [loading, setLoading] = useState(true);
+  const [requestStatus, setRequestStatus] = useState<"idle" | "sending" | "sent">("idle");
+  const [requestError, setRequestError] = useState<string | null>(null);
+
+  async function handleRequest() {
+    if (!session) return;
+    setRequestStatus("sending");
+    setRequestError(null);
+    try {
+      await requestExplanation(ticker, session.access_token);
+      setRequestStatus("sent");
+    } catch (err) {
+      setRequestStatus("idle");
+      setRequestError(err instanceof ApiError ? err.message : "We couldn't save your request. Please try again.");
+    }
+  }
 
   const load = useCallback(() => {
     setLoading(true);
@@ -158,9 +173,33 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       )}
 
       {error && error.status === 404 && (
-        <p className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-600">
-          {error.message}
-        </p>
+        <div className="mt-6 max-w-[65ch] border-t border-slate-200 pt-6">
+          <p className="font-serif text-lg leading-8 text-slate-700">{error.message}</p>
+          <p className="mt-1 text-sm text-slate-500">The price chart and key numbers above are still available.</p>
+
+          {requestStatus === "sent" ? (
+            <p role="status" className="mt-4 rounded-lg bg-positive-50 px-3 py-2 text-sm text-positive-700">
+              Request saved. We&apos;ll look at it when choosing which stocks to explain next.
+            </p>
+          ) : user ? (
+            <Button className="mt-4" onClick={handleRequest} disabled={requestStatus === "sending"}>
+              {requestStatus === "sending" ? "Saving request..." : "Request an explanation"}
+            </Button>
+          ) : (
+            <p className="mt-4 text-sm text-slate-600">
+              <Link href="/login" className="font-medium text-brand-700 underline">
+                Sign in
+              </Link>{" "}
+              to request an explanation for {ticker}.
+            </p>
+          )}
+
+          {requestError && (
+            <p role="alert" className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+              {requestError}
+            </p>
+          )}
+        </div>
       )}
 
       {error && error.status !== 401 && error.status !== 404 && (
