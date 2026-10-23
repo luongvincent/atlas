@@ -54,6 +54,7 @@ export interface ExplainResponse {
   cached: boolean;
   generated_at: string | null;
   glossary: GlossaryEntry[];
+  definitions: GlossaryEntry[];
 }
 
 export type InvestingExperience = "none" | "beginner" | "intermediate" | "experienced";

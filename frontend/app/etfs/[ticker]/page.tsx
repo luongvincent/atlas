@@ -58,7 +58,7 @@ export default function EtfDetailPage({ params }: { params: { ticker: string } }
         ← Back to ETFs
       </Link>
 
-      <h1 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">{ticker}</h1>
+      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">{ticker}</h1>
 
       {error && (
         <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

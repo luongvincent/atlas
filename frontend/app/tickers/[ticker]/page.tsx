@@ -1,50 +1,58 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { PriceChart } from "@/components/PriceChart";
+import { assignDefinitions, RichText } from "@/components/RichText";
 import { Skeleton } from "@/components/Skeleton";
 import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getExplanation, requestExplanation } from "@/lib/api";
-import type { ExplainResponse } from "@/lib/types";
+import type { ExplainResponse, GlossaryEntry } from "@/lib/types";
 
-const SECTIONS: { key: keyof ExplainResponse["sections"]; label: string }[] = [
-  { key: "what_happened", label: "What happened" },
-  { key: "what_management_said", label: "What management actually said" },
-  { key: "what_analysts_pushed_back_on", label: "What analysts pushed back on" },
-  { key: "why_it_matters", label: "Why it matters" },
+const SECTIONS: { key: keyof ExplainResponse["sections"]; id: string; label: string }[] = [
+  { key: "what_happened", id: "what-happened", label: "What happened" },
+  { key: "what_management_said", id: "what-management-said", label: "What management actually said" },
+  { key: "what_analysts_pushed_back_on", id: "analyst-pushback", label: "What analysts pushed back on" },
+  { key: "why_it_matters", id: "why-it-matters", label: "Why it matters" },
 ];
 
-// Words that signal a prediction rather than a promise. Underline as well as
-// tint so the meaning doesn't rely on color alone.
-const HEDGE_WORDS = /\b(expect(?:s|ed|ing)?|anticipate[sd]?|believe[sd]?|hope[sd]?|may|might|could|approximately|roughly)\b/i;
-
-function highlightHedges(text: string) {
-  // split() with a capture group puts the matched words at odd indexes.
-  return text.split(new RegExp(HEDGE_WORDS.source, "gi")).map((part, i) =>
-    i % 2 === 1 ? (
-      <mark key={i} className="rounded-sm bg-moderate-100 px-0.5 text-slate-900 underline decoration-moderate-600 decoration-dotted underline-offset-4">
-        {part}
-      </mark>
-    ) : (
-      part
-    ),
-  );
+// "What happened" opens with its first sentence set large; every other section
+// is a single paragraph.
+function paragraphsFor(key: string, text: string): string[] {
+  if (key !== "what_happened") return [text];
+  const [lede, ...rest] = text.split(/(?<=[.!?])\s+/);
+  return rest.length > 0 ? [lede, rest.join(" ")] : [lede];
 }
 
-function SectionBody({ sectionKey, text }: { sectionKey: string; text: string }) {
+function SectionBody({
+  sectionKey,
+  paragraphs,
+  definitions,
+}: {
+  sectionKey: string;
+  paragraphs: string[];
+  // One entry per paragraph: the terms to underline there (see assignDefinitions).
+  definitions: GlossaryEntry[][];
+}) {
   if (sectionKey === "what_happened") {
-    // Lead with the headline sentence, set large.
-    const [lede, ...rest] = text.split(/(?<=[.!?])\s+/);
+    const [lede, ...rest] = paragraphs;
     return (
       <>
-        <p className="mt-3 font-serif text-2xl font-semibold leading-snug text-slate-900">{lede}</p>
+        <RichText
+          text={lede}
+          definitions={definitions[0]}
+          className="mt-3 font-serif text-2xl font-semibold leading-snug text-slate-900"
+        />
         {rest.length > 0 && (
-          <p className="mt-4 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700">{rest.join(" ")}</p>
+          <RichText
+            text={rest[0]}
+            definitions={definitions[1]}
+            className="mt-4 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700"
+          />
         )}
       </>
     );
@@ -52,9 +60,12 @@ function SectionBody({ sectionKey, text }: { sectionKey: string; text: string })
   const hedged = sectionKey === "what_management_said";
   return (
     <>
-      <p className="mt-3 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700">
-        {hedged ? highlightHedges(text) : text}
-      </p>
+      <RichText
+        text={paragraphs[0]}
+        definitions={definitions[0]}
+        hedged={hedged}
+        className="mt-3 whitespace-pre-line font-serif text-[1.0625rem] leading-8 text-slate-700"
+      />
       {hedged && (
         <p className="mt-3 font-sans text-sm text-slate-500">
           Highlighted words mean the company is predicting, not promising.
@@ -87,6 +98,17 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
     }
   }
 
+  // Underline each jargon term once on the whole page, at its first mention.
+  const paragraphsBySection = useMemo(
+    () => (data ? SECTIONS.map(({ key }) => paragraphsFor(key, data.sections[key])) : []),
+    [data],
+  );
+  const definitionsBySection = useMemo(() => {
+    const perParagraph = assignDefinitions(paragraphsBySection.flat(), data?.definitions ?? []);
+    let next = 0;
+    return paragraphsBySection.map((paragraphs) => paragraphs.map(() => perParagraph[next++]));
+  }, [paragraphsBySection, data]);
+
   const load = useCallback(() => {
     setLoading(true);
     setError(null);
@@ -104,10 +126,10 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
   return (
     <div>
       <Link href="/tickers" className="text-sm font-medium text-brand-700 hover:underline">
-        ← Back to tickers
+        ← Back to stocks
       </Link>
 
-      <h1 className="text-3xl font-bold tracking-tight text-slate-900">{ticker}</h1>
+      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">{ticker}</h1>
 
       {data && (
         <>
@@ -212,11 +234,36 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       )}
 
       {data && (
-        <div className="mt-10 max-w-[65ch] space-y-10">
-          {SECTIONS.map(({ key, label }) => (
-            <section key={key} className="border-t border-slate-200 pt-6">
+        <div className="relative mt-10 max-w-[65ch] space-y-10">
+          {/* Desktop only: sits in the empty space beside the reading column. */}
+          <nav aria-label="On this page" className="absolute left-full top-0 ml-16 hidden h-full w-56 lg:block">
+            <div className="sticky top-28">
+              <p className="text-sm font-semibold text-slate-900">On this page</p>
+              <ul className="mt-3 border-l border-slate-200">
+                {[...SECTIONS, ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : [])].map(
+                  ({ id, label }) => (
+                    <li key={id}>
+                      <a
+                        href={`#${id}`}
+                        className="-ml-px block border-l-2 border-transparent py-1.5 pl-3 text-sm text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-700"
+                      >
+                        {label}
+                      </a>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </div>
+          </nav>
+
+          {SECTIONS.map(({ key, id, label }, s) => (
+            <section key={key} id={id} className="scroll-mt-28 border-t border-slate-200 pt-6">
               <h2 className="text-sm font-semibold text-brand-700">{label}</h2>
-              <SectionBody sectionKey={key} text={data.sections[key]} />
+              <SectionBody
+                sectionKey={key}
+                paragraphs={paragraphsBySection[s]}
+                definitions={definitionsBySection[s]}
+              />
             </section>
           ))}
 
@@ -240,7 +287,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           )}
 
           {data.citations.length > 0 && (
-            <section className="border-t border-slate-200 pt-6">
+            <section id="citations" className="scroll-mt-28 border-t border-slate-200 pt-6">
               <h2 className="text-sm font-semibold text-brand-700">Citations</h2>
               <ul className="mt-3 space-y-3">
                 {data.citations.map((c, i) => (
@@ -250,7 +297,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
                     </span>
                     <p className="text-slate-700">
                       <span className="font-medium text-slate-900">{c.speaker}</span>{" "}
-                      <span className="text-xs font-medium uppercase tracking-wide text-slate-500">
+                      <span className="text-xs font-medium text-slate-500">
                         {c.section === "qa" ? "Q&A" : "Prepared remarks"}
                       </span>
                       <br />
