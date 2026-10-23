@@ -21,7 +21,7 @@ top holdings, and sector breakdowns for each.
    ticker, splits it into per-speaker chunks (prepared remarks vs. Q&A),
    embeds them locally, and upserts them to Pinecone.
 2. **`GET /explain/{ticker}`** retrieves the most relevant chunks, asks
-   Groq (`llama-3.3-70b-versatile`) to produce a grounded, plain-language
+   Groq (`openai/gpt-oss-120b`) to produce a grounded, plain-language
    explanation with citations, and caches it in Supabase so repeat
    requests are free.
 3. **`POST /onboarding`** collects a 5-question preferences form and derives a risk
@@ -162,6 +162,7 @@ backend's `.env` includes the frontend's origin.
 ./venv/Scripts/python.exe scripts/seed_tickers.py                 # seed/refresh the tickers table
 ./venv/Scripts/python.exe scripts/run_ingestion.py [TICKER ...]   # ingest transcripts (all 15 if no args)
 ./venv/Scripts/python.exe scripts/verify_transcripts.py           # re-check scraper health across all 15
+./venv/Scripts/python.exe scripts/list_requests.py                # most-requested stocks outside the top 15
 ```
 
 ## API

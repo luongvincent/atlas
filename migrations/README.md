@@ -11,6 +11,8 @@ supabase db execute --file migrations/004_risk_profiles.sql
 supabase db execute --file migrations/005_request_logs.sql
 supabase db execute --file migrations/006_cached_explanations.sql
 supabase db execute --file migrations/007_tickers_latest_call.sql
+supabase db execute --file migrations/008_grants.sql
+supabase db execute --file migrations/009_explanation_requests.sql
 ```
 
 After running them, seed the `tickers` reference table from
