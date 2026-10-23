@@ -9,7 +9,7 @@ from api.schemas import ExplainResponse
 from config.tickers import TICKERS_BY_SYMBOL
 from core.auth import AuthContext, get_current_user_optional
 from core.explainer_chain import Explanation, ExplanationSections, NoTranscriptDataError, generate_explanation
-from core.explanation_adapter import adapt_sections
+from core.explanation_adapter import adapt_sections, find_jargon
 from core.llm import MODEL_NAME
 from core.rate_limit import limiter
 from core.risk_profile import RiskProfileContext
@@ -137,6 +137,7 @@ async def explain(
             cached=True,
             generated_at=cached["generated_at"],
             glossary=glossary,
+            definitions=find_jargon(adapted_sections),
         )
 
     if user is None:
@@ -190,4 +191,5 @@ async def explain(
         cached=False,
         generated_at=None,
         glossary=glossary,
+        definitions=find_jargon(adapted_sections),
     )

@@ -41,6 +41,9 @@ class ExplainResponse(BaseModel):
     # onboarding pereferences form, and investing_experience is beginner-level - see
     # core/explanation_adapter.py.
     glossary: list[GlossaryEntry] = Field(default_factory=list)
+    # Jargon found in the text, for every caller - the UI underlines each term
+    # inline and shows its definition on tap (see core/explanation_adapter.py).
+    definitions: list[GlossaryEntry] = Field(default_factory=list)
 
 
 class OnboardingRequest(BaseModel):
