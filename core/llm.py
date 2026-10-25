@@ -23,6 +23,8 @@ from config import get_settings
 
 logger = logging.getLogger(__name__)
 
+# llama-3.3-70b-versatile (the original pick) was removed from Groq's catalog -
+# calls returned 404 model_not_found. Re-check `Groq().models.list()` if this 404s again.
 # The original brief specified llama-3.3-70b-versatile; Groq deprecated it
 # at some point after this project was built (confirmed live: the model no
 # longer appears in this account's /models list at all, and calls to it

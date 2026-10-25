@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
+import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/Skeleton";
 import { RecommendedArticles } from "@/components/RecommendedArticles";
 import { StrategyOverview } from "@/components/StrategyOverview";
@@ -231,14 +232,14 @@ export default function OnboardingPage() {
 
   return (
     <div className="mx-auto max-w-xl text-center">
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Explanation Preferences</h1>
-      <p className="mt-1 text-sm text-slate-600">
+      <h1 className="font-serif text-3xl font-semibold tracking-tight text-slate-900">Explanation preferences</h1>
+      <p className="mt-2 font-serif text-lg leading-8 text-slate-700">
         5 quick questions. We use this to adjust the tone and depth of your explanations - not to
         give investment advice.
       </p>
 
       {!showForm && savedProfile ? (
-        <div className="mt-6 flex flex-col items-center rounded-2xl border border-brand-100 bg-gradient-to-b from-brand-50/60 to-white p-8 text-center shadow-card">
+        <div className="mt-6 flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card">
           <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-xl shadow-card">
             🎯
           </span>
@@ -249,13 +250,9 @@ export default function OnboardingPage() {
           <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-700">
             {RISK_PROFILE_COPY[savedProfile.risk_profile]}
           </p>
-          <button
-            type="button"
-            onClick={handleEditClick}
-            className="mt-6 inline-block rounded-lg bg-brand-600 px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700"
-          >
+          <Button size="md" onClick={handleEditClick} className="mt-6">
             Edit preferences
-          </button>
+          </Button>
         </div>
       ) : null}
 
@@ -301,6 +298,7 @@ export default function OnboardingPage() {
             </legend>
             <input
               type="range"
+              aria-label="Risk comfort, 1 (very cautious) to 5 (very comfortable)"
               min={1}
               max={5}
               value={form.risk_comfort}
@@ -350,26 +348,17 @@ export default function OnboardingPage() {
           </fieldset>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
+            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>
           )}
 
           <div className="flex gap-3">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
-            >
+            <Button type="submit" size="md" disabled={submitting}>
               {submitting ? "Saving..." : "Save preferences"}
-            </button>
+            </Button>
             {savedProfile && (
-              <button
-                type="button"
-                onClick={handleCancel}
-                disabled={submitting}
-                className="rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
-              >
+              <Button variant="secondary" size="md" onClick={handleCancel} disabled={submitting}>
                 Cancel
-              </button>
+              </Button>
             )}
           </div>
         </form>

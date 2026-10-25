@@ -4,8 +4,17 @@
 
 body {
   @apply bg-slate-50 text-slate-900 antialiased;
-  background-image: radial-gradient(circle at top, theme("colors.brand.50") 0%, transparent 55%);
-  background-attachment: fixed;
+}
+
+/* Smooth in-page jumps (the explain page's "On this page" links), unless the
+   user has asked their system for reduced motion. */
+html {
+  scroll-behavior: smooth;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
 
 /* Visible, on-brand focus ring everywhere - HCI heuristic #7/#10

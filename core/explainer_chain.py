@@ -107,7 +107,9 @@ def retrieve_context(ticker: str, quarter: str) -> tuple[list[Document], list[Do
 
 @groq_retry
 def _invoke_structured(prompt: str) -> Explanation:
-    structured_llm = get_llm().with_structured_output(Explanation)
+    # json_schema, not the default tool-calling: gpt-oss models often answer in
+    # prose instead of calling the tool (Groq 400 tool_use_failed).
+    structured_llm = get_llm().with_structured_output(Explanation, method="json_schema")
     return structured_llm.invoke(prompt)
 
 

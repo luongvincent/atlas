@@ -1,5 +1,5 @@
 from core.explainer_chain import ExplanationSections
-from core.explanation_adapter import adapt_sections
+from core.explanation_adapter import adapt_sections, find_jargon
 from core.risk_profile import RiskProfileContext
 
 SECTIONS = ExplanationSections(
@@ -8,6 +8,12 @@ SECTIONS = ExplanationSections(
     what_analysts_pushed_back_on="Analysts pushed back on gross margin softness.",
     why_it_matters="This quarter shows steady growth.",
 )
+
+
+def test_find_jargon_works_for_everyone_without_risk_context():
+    terms = {entry.term for entry in find_jargon(SECTIONS)}
+    assert {"revenue", "year-over-year", "guidance", "headwinds", "eps", "gross margin"} <= terms
+    assert "churn" not in terms
 
 
 def test_no_risk_context_returns_sections_unchanged():

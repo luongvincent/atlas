@@ -5,29 +5,33 @@ import { INSIGHTS } from "@/lib/insights";
 export default function LearnPage() {
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">Learn</h1>
-      <p className="mt-1 text-sm text-slate-600">
-        Short, plain-language notes on how to read what you're looking at.
+      <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Learn</h1>
+      <p className="mt-3 max-w-[65ch] font-serif text-lg leading-8 text-slate-700">
+        Short, plain-language notes on how to read what you&apos;re looking at.
       </p>
 
-      <div className="mt-6 space-y-4">
+      <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
         {INSIGHTS.map((insight) => (
-          <Link
-            key={insight.slug}
-            href={`/learn/${insight.slug}`}
-            className="group block rounded-2xl border border-slate-200 border-l-4 border-l-brand-200 bg-white p-5 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-300 hover:border-l-brand-500 hover:shadow-card-hover"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <h2 className="text-lg font-semibold tracking-tight text-slate-900 group-hover:text-brand-700">
+          <li key={insight.slug}>
+            <Link
+              href={`/learn/${insight.slug}`}
+              className="group block px-2 py-5 transition-colors hover:bg-white"
+            >
+              <h2 className="font-serif text-xl font-semibold leading-snug text-slate-900 group-hover:text-brand-700">
                 {insight.title}
               </h2>
-              <span className="shrink-0 text-xs font-medium text-slate-400">{insight.readTime}</span>
-            </div>
-            <p className="mt-1.5 text-sm text-slate-600">{insight.summary}</p>
-            <p className="mt-3 text-xs font-medium text-slate-400">{insight.date}</p>
-          </Link>
+              <p className="mt-1.5 max-w-[65ch] text-sm leading-relaxed text-slate-600">{insight.summary}</p>
+              <p className="mt-2 text-sm text-slate-500">
+                {insight.date}
+                <span className="mx-1.5 text-slate-300" aria-hidden="true">
+                  |
+                </span>
+                {insight.readTime}
+              </p>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { useState } from "react";
 import type { EtfInfo } from "@/lib/types";
 import { Badge } from "./Badge";
 
+// One row in the ETF index; same layout as TickerCard so the two lists match.
 export function EtfCard({ etf }: { etf: EtfInfo }) {
   const [logoFailed, setLogoFailed] = useState(false);
   // Same pattern/location convention as the stock tickers'
@@ -17,39 +18,42 @@ export function EtfCard({ etf }: { etf: EtfInfo }) {
   const logoSrc = `/etfs/${etf.ticker.toLowerCase()}.jpeg`;
 
   return (
-    <Link
-      href={`/etfs/${etf.ticker}`}
-      className="group block rounded-2xl border border-slate-200 border-l-4 border-l-brand-200 bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-300 hover:border-l-brand-500 hover:shadow-card-hover"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
+    <li>
+      <Link
+        href={`/etfs/${etf.ticker}`}
+        className="group flex flex-col gap-3 px-2 py-5 transition-colors hover:bg-white sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+      >
+        <div className="flex min-w-0 items-center gap-4">
           {!logoFailed ? (
             <img
               src={logoSrc}
               alt=""
-              className="h-9 w-9 shrink-0 rounded-lg border border-slate-100 object-contain"
+              className="h-10 w-10 shrink-0 rounded-lg border border-slate-200 object-contain"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 transition-colors group-hover:bg-brand-100">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700">
               {etf.ticker[0]}
             </span>
           )}
-          <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-brand-700">
-            {etf.ticker}
-          </span>
+          <div className="min-w-0">
+            <p className="font-serif text-lg font-semibold leading-tight text-slate-900 group-hover:text-brand-700">
+              {etf.name}
+            </p>
+            <p className="mt-0.5 text-sm text-slate-500">
+              <span className="font-semibold text-slate-700">{etf.ticker}</span>
+              <span className="mx-1.5 text-slate-300" aria-hidden="true">
+                |
+              </span>
+              <span className="tabular-nums">{etf.avg_daily_volume.toLocaleString()} shares traded per day</span>
+            </p>
+          </div>
         </div>
-        <span className="text-xs font-medium text-slate-400">{etf.exchange}</span>
-      </div>
-      <p className="mt-2 truncate text-sm text-slate-600">{etf.name}</p>
 
-      <p className="mt-3 text-xs tabular-nums text-slate-500">
-        Avg daily volume: <span className="font-medium text-slate-700">{etf.avg_daily_volume.toLocaleString()}</span>
-      </p>
-
-      <div className="mt-3">
-        <Badge tone="neutral">{etf.category}</Badge>
-      </div>
-    </Link>
+        <div className="shrink-0 pl-14 sm:pl-0">
+          <Badge tone="neutral">{etf.category}</Badge>
+        </div>
+      </Link>
+    </li>
   );
 }

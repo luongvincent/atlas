@@ -4,52 +4,56 @@ import { useState } from "react";
 import type { TickerInfo } from "@/lib/types";
 import { Badge } from "./Badge";
 
+// One row in the stocks index. Name file kept as TickerCard so imports stay put.
 export function TickerCard({ ticker }: { ticker: TickerInfo }) {
   const ingested = Boolean(ticker.latest_quarter);
   const [logoFailed, setLogoFailed] = useState(false);
   const logoSrc = `/tickers/${ticker.ticker.toLowerCase()}.jpeg`;
 
   return (
-    <Link
-      href={`/tickers/${ticker.ticker}`}
-      className="group block rounded-2xl border border-slate-200 border-l-4 border-l-brand-200 bg-white p-4 shadow-card transition-all duration-150 hover:-translate-y-0.5 hover:border-brand-300 hover:border-l-brand-500 hover:shadow-card-hover"
-    >
-      <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2.5">
+    <li>
+      <Link
+        href={`/tickers/${ticker.ticker}`}
+        className="group flex flex-col gap-3 px-2 py-5 transition-colors hover:bg-white sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+      >
+        <div className="flex min-w-0 items-center gap-4">
           {!logoFailed ? (
             <img
               src={logoSrc}
               alt=""
-              className="h-9 w-9 shrink-0 rounded-lg border border-slate-100 object-contain"
+              className="h-10 w-10 shrink-0 rounded-lg border border-slate-200 object-contain"
               onError={() => setLogoFailed(true)}
             />
           ) : (
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700 transition-colors group-hover:bg-brand-100">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-bold text-brand-700">
               {ticker.ticker[0]}
             </span>
           )}
-          <span className="text-lg font-bold tracking-tight text-slate-900 group-hover:text-brand-700">
-            {ticker.ticker}
-          </span>
+          <div className="min-w-0">
+            <p className="font-serif text-lg font-semibold leading-tight text-slate-900 group-hover:text-brand-700">
+              {ticker.company_name}
+            </p>
+            <p className="mt-0.5 text-sm text-slate-500">
+              <span className="font-semibold text-slate-700">{ticker.ticker}</span>
+              <span className="mx-1.5 text-slate-300" aria-hidden="true">
+                |
+              </span>
+              <span className="tabular-nums">{ticker.avg_daily_volume.toLocaleString()} shares traded per day</span>
+            </p>
+          </div>
         </div>
-        <span className="text-xs font-medium text-slate-400">{ticker.exchange}</span>
-      </div>
-      <p className="mt-2 truncate text-sm text-slate-600">{ticker.company_name}</p>
 
-      <p className="mt-3 text-xs tabular-nums text-slate-500">
-        Avg daily volume: <span className="font-medium text-slate-700">{ticker.avg_daily_volume.toLocaleString()}</span>
-      </p>
-
-      <div className="mt-3 flex items-center gap-2">
-        {ingested ? (
-          <>
-            <Badge tone="positive">{ticker.latest_quarter}</Badge>
-            <span className="truncate text-xs text-slate-400">{ticker.latest_call_date}</span>
-          </>
-        ) : (
-          <Badge tone="neutral">Not yet ingested</Badge>
-        )}
-      </div>
-    </Link>
+        <div className="flex shrink-0 flex-wrap items-center gap-x-3 gap-y-1 pl-14 sm:flex-col sm:items-end sm:gap-1 sm:pl-0">
+          {ingested ? (
+            <>
+              <Badge tone="positive">{ticker.latest_quarter} earnings call</Badge>
+              <span className="text-sm text-slate-500">{ticker.latest_call_date}</span>
+            </>
+          ) : (
+            <Badge tone="neutral">Coming soon</Badge>
+          )}
+        </div>
+      </Link>
+    </li>
   );
 }

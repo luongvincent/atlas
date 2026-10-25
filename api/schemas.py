@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, Field
 
 from core.explainer_chain import Citation, ExplanationSections
@@ -41,6 +43,9 @@ class ExplainResponse(BaseModel):
     # onboarding pereferences form, and investing_experience is beginner-level - see
     # core/explanation_adapter.py.
     glossary: list[GlossaryEntry] = Field(default_factory=list)
+    # Jargon found in the text, for every caller - the UI underlines each term
+    # inline and shows its definition on tap (see core/explanation_adapter.py).
+    definitions: list[GlossaryEntry] = Field(default_factory=list)
 
 
 class OnboardingRequest(BaseModel):
@@ -60,6 +65,33 @@ class ChartResponse(BaseModel):
     range: str
     interval: str
     points: list[ChartPoint]
+
+
+class SearchResult(BaseModel):
+    ticker: str
+    company_name: str
+    exchange: str
+    kind: Literal["stock", "etf"]
+    # True when the ticker is on Atlas's curated lists (stocks: has an
+    # explanation; ETFs: has a category).
+    supported: bool
+    # ETFs only: leveraged or inverse fund (name-based heuristic).
+    leveraged: bool = False
+
+
+class SearchResponse(BaseModel):
+    results: list[SearchResult]
+    # Matches of the other kind (e.g. an ETF found while searching stocks), so
+    # the UI can say "SPY is an ETF" instead of showing nothing.
+    other_matches: list[SearchResult] = Field(default_factory=list)
+
+
+class ExplanationRequestBody(BaseModel):
+    ticker: str = Field(min_length=1, max_length=7)
+
+
+class ExplanationRequestResponse(BaseModel):
+    ticker: str
 
 
 class EtfResponse(BaseModel):

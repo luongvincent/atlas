@@ -11,21 +11,23 @@ export default function InsightPage({ params }: { params: { slug: string } }) {
   }
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-[65ch]">
       <Link href="/learn" className="text-sm font-medium text-brand-700 hover:underline">
         ← Back to Learn
       </Link>
 
-      <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-900">{insight.title}</h1>
-      <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+      <h1 className="mt-3 font-serif text-4xl font-semibold leading-tight tracking-tight text-slate-900">
+        {insight.title}
+      </h1>
+      <div className="mt-3 flex items-center gap-2 text-sm text-slate-500">
         <span>{insight.date}</span>
         <span className="text-slate-300">&middot;</span>
         <span>{insight.readTime}</span>
       </div>
 
-      <div className="mt-6 space-y-4">
+      <div className="mt-8 space-y-5">
         {insight.content.map((paragraph, i) => (
-          <p key={i} className="text-sm leading-relaxed text-slate-700">
+          <p key={i} className="font-serif text-[1.0625rem] leading-8 text-slate-700">
             {paragraph}
           </p>
         ))}

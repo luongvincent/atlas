@@ -9,7 +9,7 @@ from api.schemas import ExplainResponse
 from config.tickers import TICKERS_BY_SYMBOL
 from core.auth import AuthContext, get_current_user_optional
 from core.explainer_chain import Explanation, ExplanationSections, NoTranscriptDataError, generate_explanation
-from core.explanation_adapter import adapt_sections
+from core.explanation_adapter import adapt_sections, find_jargon
 from core.llm import MODEL_NAME
 from core.rate_limit import limiter
 from core.risk_profile import RiskProfileContext
@@ -104,7 +104,7 @@ async def explain(
     ticker = ticker.upper()
     ticker_info = TICKERS_BY_SYMBOL.get(ticker)
     if ticker_info is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ticker: {ticker}")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"We don't have an explanation for {ticker} yet.")
 
     client = get_request_client(access_token=user.access_token if user else None)
 
@@ -137,6 +137,7 @@ async def explain(
             cached=True,
             generated_at=cached["generated_at"],
             glossary=glossary,
+            definitions=find_jargon(adapted_sections),
         )
 
     if user is None:
@@ -159,6 +160,16 @@ async def explain(
         latency_ms = int((time.monotonic() - start) * 1000)
         _log_request(client, user, ticker, status.HTTP_404_NOT_FOUND, latency_ms)
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+    except Exception as exc:
+        # An unhandled error here becomes a bare 500 with no CORS headers, which
+        # the browser reports as a network failure instead of a readable message.
+        logger.exception("Explanation generation failed for %s %s", ticker, quarter)
+        latency_ms = int((time.monotonic() - start) * 1000)
+        _log_request(client, user, ticker, status.HTTP_502_BAD_GATEWAY, latency_ms)
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="We couldn't generate this explanation right now. Please try again in a few minutes.",
+        ) from exc
 
     latency_ms = int((time.monotonic() - start) * 1000)
     logger.info("Generated explanation for %s %s in %dms", ticker, quarter, latency_ms)
@@ -180,4 +191,5 @@ async def explain(
         cached=False,
         generated_at=None,
         glossary=glossary,
+        definitions=find_jargon(adapted_sections),
     )

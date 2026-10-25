@@ -11,6 +11,22 @@ export interface TickersListResponse {
   tickers: TickerInfo[];
 }
 
+export type SearchKind = "stock" | "etf";
+
+export interface SearchResult {
+  ticker: string;
+  company_name: string;
+  exchange: string;
+  kind: SearchKind;
+  supported: boolean;
+  leveraged: boolean;
+}
+
+export interface SearchResponse {
+  results: SearchResult[];
+  other_matches: SearchResult[];
+}
+
 export interface Citation {
   claim: string;
   speaker: string;
@@ -38,6 +54,7 @@ export interface ExplainResponse {
   cached: boolean;
   generated_at: string | null;
   glossary: GlossaryEntry[];
+  definitions: GlossaryEntry[];
 }
 
 export type InvestingExperience = "none" | "beginner" | "intermediate" | "experienced";

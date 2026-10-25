@@ -17,7 +17,7 @@ export default function TeamPage() {
   return (
     <div className="mx-auto max-w-2xl">
       <div className="text-center">
-        <h1 className="text-2xl font-bold tracking-tight text-slate-900">Our Team</h1>
+        <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Our team</h1>
       </div>
 
       <div className="mt-10 flex justify-center gap-12 sm:gap-16">
@@ -33,15 +33,15 @@ export default function TeamPage() {
       </div>
 
       <div className="mx-auto mt-14 max-w-lg text-center">
-        <p className="text-base font-semibold uppercase tracking-wide text-brand-700">A note from the founder</p>
-        <p className="mt-3 text-lg leading-relaxed text-slate-700">
+        <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">A note from the founder</h2>
+        <p className="mt-4 font-serif text-lg leading-8 text-slate-700">
           I grew up in a family where money was always tight, and financial planning wasn&apos;t
           really a conversation we had - we were just trying to get by. My parents are 65 now, and
           they don&apos;t have retirement savings to fall back on. That&apos;s not a rare story. It&apos;s
           the story of a lot of families, especially as the gap between people who have access to
           financial knowledge and people who don&apos;t keeps widening.
         </p>
-        <p className="mt-4 text-lg leading-relaxed text-slate-700">
+        <p className="mt-4 font-serif text-lg leading-8 text-slate-700">
           Atlas Capital exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
           something you&apos;re only born into - it should be something anyone can pick up, in plain
           language, without a finance degree or a family member who already knows this stuff. My hope
@@ -49,7 +49,7 @@ export default function TeamPage() {
           retirement early, not because it&apos;s urgent today, but because a little understanding,
           started early, adds up to a lot more freedom later.
         </p>
-        <p className="mt-4 text-lg font-medium text-slate-900">- Vincent Luong</p>
+        <p className="mt-4 font-serif text-lg font-semibold text-slate-900">- Vincent Luong</p>
       </div>
     </div>
   );

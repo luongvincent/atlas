@@ -74,6 +74,24 @@ def _detect_glossary_terms(text: str) -> list[GlossaryEntry]:
     return entries
 
 
+def find_jargon(sections: ExplanationSections) -> list[GlossaryEntry]:
+    """Glossary terms that appear in the text, for inline definitions.
+
+    Unlike the beginner glossary appendix this is for every caller, anonymous
+    included: the page underlines the term in place and shows the definition
+    on tap.
+    """
+    combined_text = " ".join(
+        [
+            sections.what_happened,
+            sections.what_management_said,
+            sections.what_analysts_pushed_back_on,
+            sections.why_it_matters,
+        ]
+    )
+    return _detect_glossary_terms(combined_text)
+
+
 def adapt_sections(
     sections: ExplanationSections,
     risk_ctx: RiskProfileContext | None,

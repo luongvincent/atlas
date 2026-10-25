@@ -9,6 +9,7 @@ from api.schemas import EtfResponse, EtfsListResponse
 from config.etf_tickers import ETFS_BY_SYMBOL, SUPPORTED_ETFS
 from config.etf_tickers_ca import ETFS_CA_BY_SYMBOL, SUPPORTED_ETFS_CA
 from core.etf_holdings import EtfHoldings, NoHoldingsDataError, fetch_holdings
+from core.symbols import is_valid_symbol
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -37,7 +38,8 @@ async def list_etfs_ca() -> EtfsListResponse:
 @router.get("/etfs/{ticker}/holdings", response_model=EtfHoldings)
 async def get_etf_holdings(ticker: str) -> EtfHoldings:
     ticker = ticker.upper()
-    if ticker not in ETFS_BY_SYMBOL and ticker not in ETFS_CA_BY_SYMBOL:
+    # Any well-formed symbol is allowed so searched ETFs outside the curated lists get holdings.
+    if ticker not in ETFS_BY_SYMBOL and ticker not in ETFS_CA_BY_SYMBOL and not is_valid_symbol(ticker):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Unsupported ETF: {ticker}")
 
     try:
