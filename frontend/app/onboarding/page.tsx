@@ -7,6 +7,8 @@ import { useAuth } from "@/components/AuthProvider";
 import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { Skeleton } from "@/components/Skeleton";
+import { RecommendedArticles } from "@/components/RecommendedArticles";
+import { StrategyOverview } from "@/components/StrategyOverview";
 import { ApiError, getOnboarding, submitOnboarding } from "@/lib/api";
 import type {
   Goal,
@@ -252,7 +254,15 @@ export default function OnboardingPage() {
             Edit preferences
           </Button>
         </div>
-      ) : (
+      ) : null}
+
+      {!showForm && savedProfile && session && <StrategyOverview accessToken={session.access_token} />}
+
+      {!showForm && savedProfile && (
+        <RecommendedArticles experience={savedProfile.investing_experience} />
+      )}
+
+      {showForm && (
         <form onSubmit={handleSubmit} className="mt-6 space-y-6">
           <fieldset className="rounded-2xl border border-slate-200 bg-white p-5 shadow-card">
             <legend className="flex items-center gap-3 text-sm font-semibold text-slate-900">

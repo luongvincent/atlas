@@ -10,7 +10,10 @@ from api.routes.explain import router as explain_router
 from api.routes.explanation_requests import router as explanation_requests_router
 from api.routes.onboarding import router as onboarding_router
 from api.routes.search import router as search_router
+from api.routes.sentiment import router as sentiment_router
+from api.routes.similar import router as similar_router
 from api.routes.stats import router as stats_router
+from api.routes.strategy import router as strategy_router
 from api.routes.tickers import router as tickers_router
 from config import get_settings
 from core.rate_limit import limiter
@@ -45,6 +48,9 @@ app.include_router(stats_router)
 app.include_router(etfs_router)
 app.include_router(search_router)
 app.include_router(explanation_requests_router)
+app.include_router(strategy_router)
+app.include_router(similar_router)
+app.include_router(sentiment_router)
 
 
 @app.get("/health")

@@ -8,6 +8,8 @@ import { Button } from "@/components/Button";
 import { PriceChart } from "@/components/PriceChart";
 import { assignDefinitions, RichText } from "@/components/RichText";
 import { Skeleton } from "@/components/Skeleton";
+import { SentimentCard } from "@/components/SentimentCard";
+import { SimilarItems } from "@/components/SimilarItems";
 import { StatsGrid } from "@/components/StatsGrid";
 import { ApiError, getExplanation, requestExplanation } from "@/lib/api";
 import type { ExplainResponse, GlossaryEntry } from "@/lib/types";
@@ -157,6 +159,10 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
         <PriceChart ticker={ticker} />
         <StatsGrid ticker={ticker} />
       </section>
+
+      <SentimentCard ticker={ticker} />
+
+      <SimilarItems ticker={ticker} />
 
       {loading && (
         <div className="mt-6 space-y-4">

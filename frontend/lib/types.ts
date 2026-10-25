@@ -134,3 +134,41 @@ export interface EtfHoldings {
   top_holdings: HoldingEntry[];
   sector_weightings: SectorWeight[];
 }
+
+export interface StrategyOverviewSections {
+  what_this_profile_means: string;
+  common_approaches: string;
+  tradeoffs_to_watch: string;
+  closing_note: string;
+}
+
+export interface StrategyOverviewResponse {
+  risk_profile: RiskProfileLabel;
+  investing_experience: InvestingExperience;
+  sections: StrategyOverviewSections;
+  cached: boolean;
+  generated_at: string | null;
+  disclaimer: string;
+}
+
+export interface SimilarItem {
+  ticker: string;
+  name: string;
+  kind: "stock" | "etf";
+  avg_daily_volume: number;
+  reason: string;
+}
+
+export interface SimilarItemsResponse {
+  ticker: string;
+  items: SimilarItem[];
+}
+
+export interface SentimentResult {
+  ticker: string;
+  quarter: string;
+  chunk_count: number;
+  overall: number;
+  prepared_remarks: number | null;
+  qa: number | null;
+}

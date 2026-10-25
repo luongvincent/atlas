@@ -9,6 +9,9 @@ import type {
   OnboardingResponse,
   SearchKind,
   SearchResponse,
+  SentimentResult,
+  SimilarItemsResponse,
+  StrategyOverviewResponse,
   TickerStats,
   TickersListResponse,
 } from "./types";
@@ -103,6 +106,14 @@ export function getEtfHoldings(ticker: string): Promise<EtfHoldings> {
   return request<EtfHoldings>(`/etfs/${encodeURIComponent(ticker)}/holdings`);
 }
 
+export function getStrategyOverview(accessToken: string): Promise<StrategyOverviewResponse> {
+  return request<StrategyOverviewResponse>("/strategy-overview", { accessToken });
+}
+
+export function getSimilarItems(ticker: string): Promise<SimilarItemsResponse> {
+  return request<SimilarItemsResponse>(`/similar/${encodeURIComponent(ticker)}`);
+}
+
 export async function getOnboarding(
   accessToken: string,
 ): Promise<OnboardingResponse | null> {
@@ -117,4 +128,7 @@ export async function getOnboarding(
 
     throw err;
   }
+}
+export function getSentiment(ticker: string): Promise<SentimentResult> {
+  return request<SentimentResult>(`/sentiment/${encodeURIComponent(ticker)}`);
 }
