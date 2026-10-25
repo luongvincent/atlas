@@ -67,22 +67,39 @@ export function RichText({
   const seen = new Set<string>();
   const parts = termRegex ? text.split(termRegex) : [text];
 
+  // A button is an atomic inline box, so a line can break between it and a
+  // quote mark or comma right next to it. Pull that punctuation out of the
+  // neighbouring text so it can be kept on the button's line.
+  const attached = new Map<number, { lead: string; trail: string }>();
+  parts.forEach((part, i) => {
+    if (i % 2 !== 1 || seen.has(part.toLowerCase())) return;
+    seen.add(part.toLowerCase());
+    const lead = parts[i - 1].match(/['"‘“(]+$/)?.[0] ?? "";
+    const trail = parts[i + 1].match(/^['"’”),.;:!?]+/)?.[0] ?? "";
+    parts[i - 1] = parts[i - 1].slice(0, parts[i - 1].length - lead.length);
+    parts[i + 1] = parts[i + 1].slice(trail.length);
+    attached.set(i, { lead, trail });
+  });
+
   return (
     <p className={className}>
       {parts.map((part, i) => {
         const key = part.toLowerCase();
-        if (i % 2 === 1 && !seen.has(key)) {
-          seen.add(key);
+        const around = attached.get(i);
+        if (around) {
           return (
-            <button
-              key={i}
-              type="button"
-              aria-expanded={open === key}
-              onClick={() => setOpen(open === key ? null : key)}
-              className="rounded-sm underline decoration-brand-500 decoration-dotted underline-offset-4 transition-colors hover:text-brand-700"
-            >
-              {part}
-            </button>
+            <span key={i} className="whitespace-nowrap">
+              {around.lead}
+              <button
+                type="button"
+                aria-expanded={open === key}
+                onClick={() => setOpen(open === key ? null : key)}
+                className="rounded-sm underline decoration-brand-500 decoration-dotted underline-offset-4 transition-colors hover:text-brand-700"
+              >
+                {part}
+              </button>
+              {around.trail}
+            </span>
           );
         }
         return <Fragment key={i}>{hedged ? highlightHedges(part) : part}</Fragment>;

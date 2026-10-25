@@ -109,13 +109,15 @@ export function PriceChart({ ticker }: { ticker: string }) {
           )}
         </div>
 
-        <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-xs">
+        <div className="flex w-full gap-1 rounded-lg bg-slate-100 p-1 text-xs sm:w-auto">
           {RANGES.map((r) => (
             <button
               key={r}
+              type="button"
+              aria-pressed={range === r}
               onClick={() => setRange(r)}
-              className={`rounded-md px-2.5 py-1.5 font-medium transition-colors ${
-                range === r ? "bg-white text-brand-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+              className={`flex-1 rounded-md px-1 py-1.5 font-medium transition-colors sm:flex-none sm:px-2.5 ${
+                range === r ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
               }`}
             >
               {r}

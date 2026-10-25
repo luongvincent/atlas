@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
-import { Badge } from "@/components/Badge";
 import { Button } from "@/components/Button";
 import { PriceChart } from "@/components/PriceChart";
 import { assignDefinitions, RichText } from "@/components/RichText";
@@ -129,40 +128,41 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
         ← Back to stocks
       </Link>
 
-      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">{ticker}</h1>
+      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">
+        {data?.company_name ?? ticker}
+      </h1>
 
       {data && (
         <>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">{data.company_name}</span>
-            <span className="text-slate-300">&middot;</span>
-            <span>{data.quarter}</span>
-          </div>
-
-          {data.generated_at && (
-            <div className="mt-2 flex items-center gap-2 text-xs text-slate-500">
-              <span>Generated {new Date(data.generated_at).toLocaleDateString()}</span>
-              <Badge tone={data.cached ? "neutral" : "positive"}>{data.cached ? "Cached" : "Fresh"}</Badge>
-            </div>
-          )}
-
-          <div className="mt-3 rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
-            <p className="text-xs leading-relaxed text-brand-900">
-              <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
-              Use it to understand what happened - not as a recommendation to buy, sell, or hold.
-            </p>
-          </div>
+          <p className="mt-2 text-sm text-slate-600">
+            <span className="font-semibold text-slate-900">{ticker}</span>
+            <span className="mx-1.5 text-slate-300" aria-hidden="true">
+              |
+            </span>
+            {data.quarter} earnings call
+            <span className="mx-1.5 text-slate-300" aria-hidden="true">
+              |
+            </span>
+            {data.generated_at
+              ? `Written ${new Date(data.generated_at).toLocaleDateString()}`
+              : "Just written for you"}
+          </p>
         </>
       )}
 
-      <div className="mt-4">
+      <section id="price" aria-labelledby="price-heading" className="mt-6 scroll-mt-28">
+        <h2 id="price-heading" className="sr-only">
+          Price and key numbers
+        </h2>
         <PriceChart ticker={ticker} />
-      </div>
-
-      <StatsGrid ticker={ticker} />
+        <StatsGrid ticker={ticker} />
+      </section>
 
       {loading && (
         <div className="mt-6 space-y-4">
+          <p role="status" className="text-sm text-slate-600">
+            Reading the transcript and writing your explanation. The first time can take up to a minute.
+          </p>
           <Skeleton className="h-4 w-64" />
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="max-w-[65ch] border-t border-slate-200 pt-6">
@@ -240,7 +240,11 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             <div className="sticky top-28">
               <p className="text-sm font-semibold text-slate-900">On this page</p>
               <ul className="mt-3 border-l border-slate-200">
-                {[...SECTIONS, ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : [])].map(
+                {[
+                  { id: "price", label: "Price and key numbers" },
+                  ...SECTIONS,
+                  ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : []),
+                ].map(
                   ({ id, label }) => (
                     <li key={id}>
                       <a
@@ -256,9 +260,16 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             </div>
           </nav>
 
+          <div className="rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
+            <p className="text-sm leading-relaxed text-brand-900">
+              <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
+              Use it to understand what happened - not as a recommendation to buy, sell, or hold.
+            </p>
+          </div>
+
           {SECTIONS.map(({ key, id, label }, s) => (
             <section key={key} id={id} className="scroll-mt-28 border-t border-slate-200 pt-6">
-              <h2 className="text-sm font-semibold text-brand-700">{label}</h2>
+              <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">{label}</h2>
               <SectionBody
                 sectionKey={key}
                 paragraphs={paragraphsBySection[s]}
@@ -268,13 +279,8 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           ))}
 
           {data.glossary.length > 0 && (
-            <section className="rounded-2xl border border-brand-100 bg-brand-50 p-5">
-              <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-md bg-brand-600 text-xs font-bold text-white">
-                  Aa
-                </span>
-                <h2 className="text-base font-semibold text-slate-900">Terms used in this explanation</h2>
-              </div>
+            <section className="border-t border-slate-200 pt-6">
+              <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">Terms used</h2>
               <dl className="mt-3 space-y-2.5">
                 {data.glossary.map((g) => (
                   <div key={g.term} className="text-sm">
@@ -288,20 +294,15 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
 
           {data.citations.length > 0 && (
             <section id="citations" className="scroll-mt-28 border-t border-slate-200 pt-6">
-              <h2 className="text-sm font-semibold text-brand-700">Citations</h2>
-              <ul className="mt-3 space-y-3">
+              <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">Citations</h2>
+              <ul className="mt-3 divide-y divide-slate-200 border-y border-slate-200">
                 {data.citations.map((c, i) => (
-                  <li key={i} className="flex gap-3 text-sm">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-semibold text-slate-600">
-                      {c.speaker[0]?.toUpperCase() ?? "?"}
-                    </span>
-                    <p className="text-slate-700">
-                      <span className="font-medium text-slate-900">{c.speaker}</span>{" "}
-                      <span className="text-xs font-medium text-slate-500">
-                        {c.section === "qa" ? "Q&A" : "Prepared remarks"}
-                      </span>
-                      <br />
-                      {c.claim}
+                  <li key={i} className="py-3 text-sm">
+                    <p className="text-slate-700">{c.claim}</p>
+                    <p className="mt-1 text-slate-500">
+                      <span className="font-medium text-slate-900">{c.speaker}</span>
+                      {", "}
+                      {c.section === "qa" ? "Q&A" : "prepared remarks"}
                     </p>
                   </li>
                 ))}
