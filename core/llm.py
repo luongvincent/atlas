@@ -23,16 +23,9 @@ from config import get_settings
 
 logger = logging.getLogger(__name__)
 
-# llama-3.3-70b-versatile (the original pick) was removed from Groq's catalog -
-# calls returned 404 model_not_found. Re-check `Groq().models.list()` if this 404s again.
-# The original brief specified llama-3.3-70b-versatile; Groq deprecated it
-# at some point after this project was built (confirmed live: the model no
-# longer appears in this account's /models list at all, and calls to it
-# 404 with "model_not_found"). openai/gpt-oss-120b is the current
-# replacement - verified it supports .with_structured_output() cleanly via
-# a live call before switching, since not every hosted model handles
-# structured/tool-call output the same way. Re-check Groq's available
-# models if this ever breaks again the same way.
+# llama-3.3-70b-versatile (the brief's pick) was removed from Groq's catalog (404 model_not_found);
+# openai/gpt-oss-120b replaces it and supports .with_structured_output(). If this 404s again,
+# re-check `Groq().models.list()`.
 MODEL_NAME = "openai/gpt-oss-120b"
 
 RETRYABLE_ERRORS = (RateLimitError, APIConnectionError, APITimeoutError, InternalServerError)

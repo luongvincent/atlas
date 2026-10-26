@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import logging
 import time
 
@@ -8,7 +9,13 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from api.schemas import ExplainResponse
 from config.tickers import TICKERS_BY_SYMBOL
 from core.auth import AuthContext, get_current_user_optional
-from core.explainer_chain import Explanation, ExplanationSections, NoTranscriptDataError, generate_explanation
+from core.explainer_chain import (
+    PROMPT_VERSION,
+    Explanation,
+    ExplanationSections,
+    NoTranscriptDataError,
+    generate_explanation,
+)
 from core.explanation_adapter import adapt_sections, find_jargon
 from core.llm import MODEL_NAME
 from core.rate_limit import limiter
@@ -39,6 +46,7 @@ def _load_cached(client, ticker: str, quarter: str) -> dict | None:
         .select("sections, citations, model, generated_at")
         .eq("ticker", ticker)
         .eq("quarter", quarter)
+        .eq("prompt_version", PROMPT_VERSION)  # a row from an older prompt counts as a miss
         .limit(1)
         .execute()
     )
@@ -52,6 +60,7 @@ def _store_cache(client, ticker: str, quarter: str, explanation: Explanation) ->
         "sections": explanation.sections.model_dump(),
         "citations": [c.model_dump() for c in explanation.citations],
         "model": MODEL_NAME,
+        "prompt_version": PROMPT_VERSION,
     }
     client.table("cached_explanations").upsert(payload, on_conflict="ticker,quarter").execute()
 
@@ -155,7 +164,9 @@ async def explain(
         )
 
     try:
-        explanation = generate_explanation(ticker, quarter, ticker_info.company_name)
+        # generate_explanation is blocking (embedding, Pinecone, Groq + retries);
+        # off the event loop so one cache miss doesn't stall every other request.
+        explanation = await asyncio.to_thread(generate_explanation, ticker, quarter, ticker_info.company_name)
     except NoTranscriptDataError as exc:
         latency_ms = int((time.monotonic() - start) * 1000)
         _log_request(client, user, ticker, status.HTTP_404_NOT_FOUND, latency_ms)

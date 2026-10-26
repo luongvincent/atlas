@@ -17,7 +17,7 @@ from pydantic import BaseModel
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from config import get_settings
-from core.vector_store import _pinecone_client
+from core.vector_store import get_pinecone_client
 
 
 class SentimentResult(BaseModel):
@@ -69,5 +69,5 @@ def score_chunks(ticker: str, chunks: list[dict]) -> SentimentResult | None:
 
 @lru_cache(maxsize=64)
 def get_sentiment(ticker: str) -> SentimentResult | None:
-    index = _pinecone_client().Index(get_settings().pinecone_index_name)
+    index = get_pinecone_client().Index(get_settings().pinecone_index_name)
     return score_chunks(ticker, fetch_chunks(index, ticker))

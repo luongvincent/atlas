@@ -15,7 +15,7 @@ from core.embeddings import EMBEDDING_DIMENSION, get_embeddings
 
 
 @lru_cache
-def _pinecone_client() -> Pinecone:
+def get_pinecone_client() -> Pinecone:
     settings = get_settings()
     return Pinecone(api_key=settings.pinecone_api_key)
 
@@ -26,7 +26,7 @@ def ensure_index_exists() -> None:
     index is already there.
     """
     settings = get_settings()
-    client = _pinecone_client()
+    client = get_pinecone_client()
     existing = {index.name for index in client.list_indexes()}
     if settings.pinecone_index_name in existing:
         return
@@ -41,5 +41,5 @@ def ensure_index_exists() -> None:
 @lru_cache
 def get_vector_store() -> PineconeVectorStore:
     settings = get_settings()
-    index = _pinecone_client().Index(settings.pinecone_index_name)
+    index = get_pinecone_client().Index(settings.pinecone_index_name)
     return PineconeVectorStore(index=index, embedding=get_embeddings())

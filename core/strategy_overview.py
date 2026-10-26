@@ -90,7 +90,7 @@ This reader's profile:
 
 @groq_retry
 def _invoke_structured(prompt: str) -> StrategyOverview:
-    structured_llm = get_llm().with_structured_output(StrategyOverview)
+    structured_llm = get_llm().with_structured_output(StrategyOverview, method="json_schema")
     return structured_llm.invoke(prompt)
 
 
