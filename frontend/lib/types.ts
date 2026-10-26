@@ -31,6 +31,9 @@ export interface Citation {
   claim: string;
   speaker: string;
   section: "prepared_remarks" | "qa";
+  // Absent on explanations cached before citations were verified against the transcript.
+  chunk_id?: string | null;
+  quote?: string | null;
 }
 
 export interface ExplanationSections {
