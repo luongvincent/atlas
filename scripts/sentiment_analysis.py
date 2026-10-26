@@ -28,14 +28,14 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from config import get_settings
 from config.tickers import SUPPORTED_TICKERS
 from core.sentiment import fetch_chunks
-from core.vector_store import _pinecone_client
+from core.vector_store import get_pinecone_client
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "sentiment_scores.csv"
 
 
 def main() -> None:
     tickers = [t.upper() for t in sys.argv[1:]] or [t.ticker for t in SUPPORTED_TICKERS]
-    index = _pinecone_client().Index(get_settings().pinecone_index_name)
+    index = get_pinecone_client().Index(get_settings().pinecone_index_name)
     analyzer = SentimentIntensityAnalyzer()
 
     rows = []
