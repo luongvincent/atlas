@@ -10,7 +10,7 @@ from typing import Literal
 from langchain_core.documents import Document
 from pydantic import BaseModel, Field
 
-from core.llm import get_llm, groq_retry
+from core.llm import groq_retry, invoke_structured
 from core.vector_store import get_vector_store
 
 logger = logging.getLogger(__name__)
@@ -165,10 +165,7 @@ def retrieve_context(ticker: str, quarter: str) -> tuple[list[Document], list[Do
 
 @groq_retry
 def _invoke_structured(prompt: str) -> _LLMExplanation:
-    # json_schema, not the default tool-calling: gpt-oss models often answer in
-    # prose instead of calling the tool (Groq 400 tool_use_failed).
-    structured_llm = get_llm().with_structured_output(_LLMExplanation, method="json_schema")
-    return structured_llm.invoke(prompt)
+    return invoke_structured(_LLMExplanation, prompt)
 
 
 def generate_explanation(ticker: str, quarter: str, company_name: str) -> Explanation:
