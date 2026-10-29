@@ -19,7 +19,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from core.llm import get_llm, groq_retry
+from core.llm import groq_retry, invoke_structured
 from core.risk_profile import InvestingExperience, RiskProfileLabel
 
 _EXPERIENCE_LABELS: dict[InvestingExperience, str] = {
@@ -90,8 +90,7 @@ This reader's profile:
 
 @groq_retry
 def _invoke_structured(prompt: str) -> StrategyOverview:
-    structured_llm = get_llm().with_structured_output(StrategyOverview, method="json_schema")
-    return structured_llm.invoke(prompt)
+    return invoke_structured(StrategyOverview, prompt)
 
 
 def generate_strategy_overview(

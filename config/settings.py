@@ -33,6 +33,11 @@ class Settings(BaseSettings):
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     cors_allowed_origins: str = Field(default="http://localhost:3000", alias="CORS_ALLOWED_ORIGINS")
 
+    # MLflow tracing (opt-in; see core/tracing.py)
+    mlflow_tracing_enabled: bool = Field(default=False, alias="MLFLOW_TRACING_ENABLED")
+    mlflow_tracking_uri: str = Field(default="sqlite:///mlflow.db", alias="MLFLOW_TRACKING_URI")
+    mlflow_experiment_name: str = Field(default="atlas", alias="MLFLOW_EXPERIMENT_NAME")
+
     @property
     def cors_origins_list(self) -> list[str]:
         return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]

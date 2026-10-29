@@ -18,8 +18,10 @@ from api.routes.tickers import router as tickers_router
 from config import get_settings
 from core.rate_limit import limiter
 from core.security_headers import SecurityHeadersMiddleware
+from core.tracing import init_tracing
 
 settings = get_settings()
+init_tracing()
 
 app = FastAPI(title="Atlas Capital", version="0.1.0")
 
