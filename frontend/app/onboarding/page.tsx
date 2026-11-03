@@ -218,7 +218,7 @@ export default function OnboardingPage() {
     return (
       <div className="rounded-2xl border border-moderate-100 bg-moderate-50 p-4">
         <p className="text-sm text-moderate-700">
-          <Link href="/login" className="font-medium underline">
+          <Link href="/login?next=/onboarding" className="font-medium underline">
             Sign in
           </Link>{" "}
           to set your explanation preferences.
@@ -231,7 +231,7 @@ export default function OnboardingPage() {
   const showForm = !savedProfile || editing;
 
   return (
-    <div className="mx-auto max-w-xl text-center">
+    <div className="mx-auto max-w-xl">
       <h1 className="font-serif text-3xl font-semibold tracking-tight text-slate-900">Explanation preferences</h1>
       <p className="mt-2 font-serif text-lg leading-8 text-slate-700">
         5 quick questions. We use this to adjust the tone and depth of your explanations - not to
@@ -239,15 +239,12 @@ export default function OnboardingPage() {
       </p>
 
       {!showForm && savedProfile ? (
-        <div className="mt-6 flex flex-col items-center rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-card">
-          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600 text-xl shadow-card">
-            🎯
-          </span>
-          <p className="mt-4 text-sm font-medium text-slate-500">Your risk profile</p>
+        <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-card">
+          <p className="text-sm font-medium text-slate-500">Your risk profile</p>
           <div className="mt-3">
             <Badge tone={savedProfile.risk_profile}>{savedProfile.risk_profile}</Badge>
           </div>
-          <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-700">
+          <p className="mt-3 text-sm leading-relaxed text-slate-700">
             {RISK_PROFILE_COPY[savedProfile.risk_profile]}
           </p>
           <Button size="md" onClick={handleEditClick} className="mt-6">
@@ -303,10 +300,8 @@ export default function OnboardingPage() {
               max={5}
               value={form.risk_comfort}
               onChange={(e) => setForm((f) => ({ ...f, risk_comfort: Number(e.target.value) }))}
-              className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full accent-brand-600"
-              style={{
-                background: "linear-gradient(to right, #0ea5e9, #f59e0b, #f43f5e)",
-              }}
+              aria-valuetext={`${form.risk_comfort} out of 5`}
+              className="mt-4 h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-brand-600"
             />
             <div className="mt-1.5 flex justify-between text-xs text-slate-500">
               <span>Very cautious</span>

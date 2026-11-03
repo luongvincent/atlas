@@ -6,6 +6,22 @@ import { useState } from "react";
 import { useAuth } from "./AuthProvider";
 import { Button } from "./Button";
 
+// Where to go after signing in: ?next=/some/path, same-origin only (parsed, so
+// tricks like "/\evil.com" that browsers read as "//evil.com" fall back too).
+export function safeNext(next: string | null, origin: string): string {
+  if (!next) return "/tickers";
+  try {
+    const u = new URL(next, origin);
+    return u.origin === origin ? u.pathname + u.search + u.hash : "/tickers";
+  } catch {
+    return "/tickers";
+  }
+}
+
+export function nextPath(): string {
+  return safeNext(new URLSearchParams(window.location.search).get("next"), window.location.origin);
+}
+
 export function LoginForm() {
   const { signIn, signUp } = useAuth();
   const router = useRouter();
@@ -37,7 +53,7 @@ export function LoginForm() {
       return;
     }
 
-    router.replace("/tickers");
+    router.replace(nextPath());
   }
 
   return (
@@ -45,8 +61,9 @@ export function LoginForm() {
       <div className="mb-5 flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
         <button
           type="button"
+          aria-pressed={mode === "signin"}
           className={`flex-1 rounded-md py-1.5 font-medium transition-colors ${
-            mode === "signin" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            mode === "signin" ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
           }`}
           onClick={() => setMode("signin")}
         >
@@ -54,8 +71,9 @@ export function LoginForm() {
         </button>
         <button
           type="button"
+          aria-pressed={mode === "signup"}
           className={`flex-1 rounded-md py-1.5 font-medium transition-colors ${
-            mode === "signup" ? "bg-white text-brand-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+            mode === "signup" ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
           }`}
           onClick={() => setMode("signup")}
         >
@@ -81,7 +99,9 @@ export function LoginForm() {
           />
         </div>
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">Password</label>
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-slate-700">
+            Password <span className="font-normal text-slate-500">(at least 6 characters)</span>
+          </label>
           <input
             id="password"
             type="password"
