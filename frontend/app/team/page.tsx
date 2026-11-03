@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { PageHero } from "@/components/PageHero";
+
 const TEAM = [
   {
     name: "Vincent Luong",
@@ -15,16 +17,14 @@ const TEAM = [
 
 export default function TeamPage() {
   return (
-    <div className="mx-auto max-w-2xl">
-      <div className="text-center">
-        <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Our team</h1>
-      </div>
+    <div>
+      <PageHero title="Our team" />
 
-      <div className="mt-10 flex justify-center gap-12 sm:gap-16">
+      <div className="mt-10 flex gap-12 sm:gap-16">
         {TEAM.map((member) => (
           <div key={member.name} className="flex flex-col items-center text-center">
             <div className="relative h-28 w-28 overflow-hidden rounded-full border border-slate-200 shadow-card">
-              <Image src={member.image} alt={member.name} fill className="object-cover" />
+              <Image src={member.image} alt={member.name} fill sizes="112px" className="object-cover" />
             </div>
             <p className="mt-4 text-lg font-semibold text-slate-900">{member.name}</p>
             <p className="mt-0.5 text-base text-slate-600">{member.role}</p>
@@ -32,7 +32,7 @@ export default function TeamPage() {
         ))}
       </div>
 
-      <div className="mx-auto mt-14 max-w-lg text-center">
+      <div className="mt-14 max-w-[65ch]">
         <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">A note from the founder</h2>
         <p className="mt-4 font-serif text-lg leading-8 text-slate-700">
           I grew up in a family where money was always tight, and financial planning wasn&apos;t
@@ -42,7 +42,7 @@ export default function TeamPage() {
           financial knowledge and people who don&apos;t keeps widening.
         </p>
         <p className="mt-4 font-serif text-lg leading-8 text-slate-700">
-          Atlas Capital exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
+          Atlas exists to close that gap, even in a small way. Financial literacy shouldn&apos;t be
           something you&apos;re only born into - it should be something anyone can pick up, in plain
           language, without a finance degree or a family member who already knows this stuff. My hope
           is that young adults, especially ones who grew up like I did, start thinking about

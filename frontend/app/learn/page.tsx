@@ -1,21 +1,21 @@
 import Link from "next/link";
 
+import { PageHero } from "@/components/PageHero";
 import { INSIGHTS } from "@/lib/insights";
 
 export default function LearnPage() {
   return (
     <div>
-      <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Learn</h1>
-      <p className="mt-3 max-w-[65ch] font-serif text-lg leading-8 text-slate-700">
-        Short, plain-language notes on how to read what you&apos;re looking at.
-      </p>
+      <PageHero title="Learn">
+        <p className="text-lg leading-8">Short, plain-language notes on how to read what you&apos;re looking at.</p>
+      </PageHero>
 
-      <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+      <ul className="row-list mt-8">
         {INSIGHTS.map((insight) => (
           <li key={insight.slug}>
             <Link
               href={`/learn/${insight.slug}`}
-              className="group block px-2 py-5 transition-colors hover:bg-white"
+              className="group block rounded-2xl px-4 py-5 transition-colors hover:bg-slate-50 sm:px-5"
             >
               <h2 className="font-serif text-xl font-semibold leading-snug text-slate-900 group-hover:text-brand-700">
                 {insight.title}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 
 import { EtfCard } from "@/components/EtfCard";
+import { PageHero } from "@/components/PageHero";
 import { SearchSection } from "@/components/SearchSection";
 import { Skeleton } from "@/components/Skeleton";
 import { ApiError, getEtfs, getEtfsCa } from "@/lib/api";
@@ -27,9 +28,9 @@ const REGION_COPY: Record<Region, { tab: string; title: string; description: str
 
 function EtfGridSkeleton() {
   return (
-    <div className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+    <div className="row-list mt-8">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="flex items-center gap-4 px-2 py-5">
+        <div key={i} className="flex items-center gap-4 px-4 py-5 sm:px-5">
           <Skeleton className="h-10 w-10 rounded-lg" />
           <div>
             <Skeleton className="h-5 w-48" />
@@ -64,25 +65,26 @@ export default function EtfsPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">ETFs</h1>
-      <p className="mt-3 max-w-[65ch] font-serif text-lg leading-8 text-slate-700">
-        An ETF is a basket of investments you can buy as one. Look up any US or Canadian ETF for its price,
-        key numbers and what it holds.
-      </p>
+      <PageHero title="ETFs">
+        <p className="text-lg leading-8">
+          An ETF is a basket of investments you can buy as one. Look up any US or Canadian ETF for its price,
+          key numbers and what it holds.
+        </p>
+      </PageHero>
 
       <SearchSection kind="etf">
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4">
           <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">{copy.title}</h2>
 
-          <div className="flex gap-1 rounded-lg bg-slate-100 p-1 text-sm">
+          <div className="flex gap-1 rounded-full bg-slate-200 p-1 text-sm">
             {(Object.keys(REGION_COPY) as Region[]).map((r) => (
               <button
                 key={r}
                 type="button"
                 aria-pressed={region === r}
                 onClick={() => setRegion(r)}
-                className={`rounded-md px-3.5 py-1.5 font-medium transition-colors ${
-                  region === r ? "bg-white text-brand-700 shadow-sm" : "text-slate-500 hover:text-slate-700"
+                className={`rounded-full px-3.5 py-1.5 font-medium transition-colors ${
+                  region === r ? "bg-white text-brand-700 shadow-sm" : "text-slate-700 hover:text-slate-900"
                 }`}
               >
                 {REGION_COPY[r].tab}
@@ -99,7 +101,7 @@ export default function EtfsPage() {
         {!etfs && !error && <EtfGridSkeleton />}
 
         {etfs && (
-          <ul className="mt-8 divide-y divide-slate-200 border-y border-slate-200">
+          <ul className="row-list mt-8">
             {etfs.map((e) => (
               <EtfCard key={e.ticker} etf={e} />
             ))}

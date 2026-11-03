@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { useState } from "react";
 
@@ -14,7 +16,7 @@ export function TickerCard({ ticker }: { ticker: TickerInfo }) {
     <li>
       <Link
         href={`/tickers/${ticker.ticker}`}
-        className="group flex flex-col gap-3 px-2 py-5 transition-colors hover:bg-white sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+        className="group flex flex-col gap-3 rounded-2xl px-4 py-5 transition-colors hover:bg-slate-50 sm:px-5 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
       >
         <div className="flex min-w-0 items-center gap-4">
           {!logoFailed ? (

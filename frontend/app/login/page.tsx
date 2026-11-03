@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/components/AuthProvider";
-import { LoginForm } from "@/components/LoginForm";
+import { LoginForm, nextPath } from "@/components/LoginForm";
 
 export default function LoginPage() {
   const { user, loading } = useAuth();
@@ -13,7 +13,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.replace("/tickers");
+      router.replace(nextPath());
     }
   }, [loading, user, router]);
 
@@ -22,14 +22,14 @@ export default function LoginPage() {
   return (
     <div className="flex flex-col items-center py-16">
       <Image
-        src="/logo.png"
-        alt="Atlas Capital"
-        width={56}
-        height={56}
-        className="mb-4 h-14 w-14 rounded-lg object-cover shadow-card"
+        src="/logo-mark.png"
+        alt=""
+        width={64}
+        height={64}
+        className="mb-4 h-16 w-16 object-contain mix-blend-multiply"
         priority
       />
-      <h1 className="mb-1 font-serif text-3xl font-semibold tracking-tight text-slate-900">Atlas Capital</h1>
+      <h1 className="mb-1 font-serif text-3xl font-semibold tracking-tight text-slate-900">Atlas</h1>
       <p className="mb-1 text-sm font-medium text-brand-700">Stocks, plainly explained.</p>
       <p className="mb-8 text-sm text-slate-600">Sign in to generate and personalize explanations.</p>
       <LoginForm />
