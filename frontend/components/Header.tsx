@@ -21,14 +21,15 @@ export function Header() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const links = NAV_LINKS.map((link) => {
+  // Preferences needs an account, so signed-out visitors don't see it.
+  const links = NAV_LINKS.filter((link) => user || link.href !== "/onboarding").map((link) => {
     const active = pathname === link.href || pathname?.startsWith(`${link.href}/`);
     return (
       <Link
         key={link.href}
         href={link.href}
         onClick={() => setMenuOpen(false)}
-        className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+        className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
           active ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
         }`}
       >
@@ -39,7 +40,11 @@ export function Header() {
 
   const auth = loading ? null : user ? (
     <>
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+      <span
+        role="img"
+        aria-label={`Signed in as ${user.email ?? "unknown user"}`}
+        className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700"
+      >
         {user.email?.[0]?.toUpperCase() ?? "?"}
       </span>
       <Button variant="secondary" onClick={() => signOut()}>
@@ -54,17 +59,11 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo.png"
-            alt="Atlas Capital"
-            width={56}
-            height={56}
-            className="h-14 w-14 rounded-lg object-cover"
-            priority
-          />
-          <span className="whitespace-nowrap text-xl font-semibold tracking-tight text-slate-900">Atlas Capital</span>
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6">
+        <Link href="/" className="flex items-center gap-2.5 rounded-lg">
+          {/* Decorative: the wordmark beside it already names the link. */}
+          <Image src="/logo-mark.png" alt="" width={36} height={36} className="h-9 w-9 object-contain mix-blend-multiply" priority />
+          <span className="whitespace-nowrap font-display text-xl font-semibold tracking-tight text-slate-900">Atlas</span>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-1 md:flex">

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 
+import { PageHero } from "@/components/PageHero";
 import { SearchSection } from "@/components/SearchSection";
 import { Skeleton } from "@/components/Skeleton";
 import { TickerCard } from "@/components/TickerCard";
@@ -20,11 +21,12 @@ export default function TickersPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-4xl font-semibold tracking-tight text-slate-900">Stocks</h1>
-      <p className="mt-3 max-w-[65ch] font-serif text-lg leading-8 text-slate-700">
-        Look up any US stock for its price and key numbers. The 15 most traded companies also come with a
-        plain-language explanation of their latest earnings call.
-      </p>
+      <PageHero title="Stocks">
+        <p className="text-lg leading-8">
+          Look up any US stock for its price and key numbers. The 15 most traded companies also come with a
+          plain-language explanation of their latest earnings call.
+        </p>
+      </PageHero>
 
       <SearchSection kind="stock">
         <h2 className="mt-10 font-serif text-2xl font-semibold tracking-tight text-slate-900">
@@ -36,9 +38,9 @@ export default function TickersPage() {
         )}
 
         {!tickers && !error && (
-          <div className="mt-4 divide-y divide-slate-200 border-y border-slate-200">
+          <div className="row-list mt-4">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="flex items-center gap-4 px-2 py-5">
+              <div key={i} className="flex items-center gap-4 px-4 py-5 sm:px-5">
                 <Skeleton className="h-10 w-10 rounded-lg" />
                 <div>
                   <Skeleton className="h-5 w-48" />
@@ -50,7 +52,7 @@ export default function TickersPage() {
         )}
 
         {tickers && (
-          <ul className="mt-4 divide-y divide-slate-200 border-y border-slate-200">
+          <ul className="row-list mt-4">
             {tickers.map((t) => (
               <TickerCard key={t.ticker} ticker={t} />
             ))}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Badge } from "@/components/Badge";
 import { HoldingsBreakdown } from "@/components/HoldingsBreakdown";
+import { PageHero } from "@/components/PageHero";
 import { PriceChart } from "@/components/PriceChart";
 import { Skeleton } from "@/components/Skeleton";
 import { SimilarItems } from "@/components/SimilarItems";
@@ -55,11 +56,31 @@ export default function EtfDetailPage({ params }: { params: { ticker: string } }
 
   return (
     <div>
-      <Link href="/etfs" className="text-sm font-medium text-brand-700 hover:underline">
-        ← Back to ETFs
-      </Link>
+      <PageHero title={ticker} back={{ href: "/etfs", label: "Back to ETFs" }}>
+        {!etf && !unlisted && !notFound && !error && <Skeleton className="h-5 w-56" />}
 
-      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">{ticker}</h1>
+        {etf && (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="font-semibold text-white">{etf.name}</span>
+            <Badge tone="neutral">{etf.category}</Badge>
+          </div>
+        )}
+
+        {unlisted && (
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <span className="font-semibold text-white">{unlisted.company_name}</span>
+            <Badge tone="neutral">ETF</Badge>
+            {unlisted.leveraged && <Badge tone="warning">Leveraged / inverse</Badge>}
+          </div>
+        )}
+      </PageHero>
+
+      {/* Outside the dark hero: its amber text needs a light background for contrast. */}
+      {unlisted?.leveraged && (
+        <div className="mt-4">
+          <LeveragedWarning />
+        </div>
+      )}
 
       {error && (
         <p role="alert" className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
@@ -76,35 +97,9 @@ export default function EtfDetailPage({ params }: { params: { ticker: string } }
         </div>
       )}
 
-      {!etf && !unlisted && !notFound && !error && (
-        <div className="mt-2 flex items-center gap-2">
-          <Skeleton className="h-5 w-56" />
-        </div>
-      )}
-
-      {etf && (
-        <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-          <span className="font-semibold text-slate-900">{etf.name}</span>
-          <span className="text-slate-300">&middot;</span>
-          <Badge tone="neutral">{etf.category}</Badge>
-        </div>
-      )}
-
-      {unlisted && (
-        <>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">{unlisted.company_name}</span>
-            <span className="text-slate-300">&middot;</span>
-            <Badge tone="neutral">ETF</Badge>
-            {unlisted.leveraged && <Badge tone="warning">Leveraged / inverse</Badge>}
-          </div>
-          {unlisted.leveraged && <LeveragedWarning />}
-        </>
-      )}
-
       {!notFound && (
         <>
-          <div className="mt-4">
+          <div className="mt-6">
             <PriceChart ticker={ticker} />
           </div>
 

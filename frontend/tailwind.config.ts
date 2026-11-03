@@ -56,6 +56,8 @@ const config: Config = {
       fontFamily: {
         // Long-form explanation text; set via next/font in app/layout.tsx.
         serif: ["var(--font-serif)", "Georgia", "serif"],
+        // Headlines and the wordmark; applied to h1/h2.font-serif in globals.css.
+        display: ["var(--font-display)", "system-ui", "sans-serif"],
       },
       boxShadow: {
         card: "0 1px 2px 0 rgb(15 23 42 / 0.04), 0 1px 3px 0 rgb(15 23 42 / 0.06)",

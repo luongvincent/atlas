@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/Button";
+import { PageHero } from "@/components/PageHero";
 import { PriceChart } from "@/components/PriceChart";
 import { assignDefinitions, RichText } from "@/components/RichText";
 import { Skeleton } from "@/components/Skeleton";
@@ -124,45 +125,34 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
     load();
   }, [authLoading, load]);
 
+  const navItems = data
+    ? [
+        ...SECTIONS,
+        ...(data.glossary.length > 0 ? [{ id: "terms", label: "Terms used" }] : []),
+        ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : []),
+        { id: "price", label: "Price and key numbers" },
+      ]
+    : [];
+
   return (
     <div>
-      <Link href="/tickers" className="text-sm font-medium text-brand-700 hover:underline">
-        ← Back to stocks
-      </Link>
-
-      <h1 className="mt-2 font-serif text-4xl font-semibold tracking-tight text-slate-900">
-        {data?.company_name ?? ticker}
-      </h1>
-
-      {data && (
-        <>
-          <p className="mt-2 text-sm text-slate-600">
-            <span className="font-semibold text-slate-900">{ticker}</span>
-            <span className="mx-1.5 text-slate-300" aria-hidden="true">
+      <PageHero title={data?.company_name ?? ticker} back={{ href: "/tickers", label: "Back to stocks" }}>
+        {data && (
+          <p className="text-sm">
+            <span className="font-semibold text-white">{ticker}</span>
+            <span className="mx-1.5 text-slate-500" aria-hidden="true">
               |
             </span>
             {data.quarter} earnings call
-            <span className="mx-1.5 text-slate-300" aria-hidden="true">
+            <span className="mx-1.5 text-slate-500" aria-hidden="true">
               |
             </span>
             {data.generated_at
-              ? `Written ${new Date(data.generated_at).toLocaleDateString()}`
+              ? `Written ${new Date(data.generated_at).toLocaleDateString("en-US", { dateStyle: "long" })}`
               : "Just written for you"}
           </p>
-        </>
-      )}
-
-      <section id="price" aria-labelledby="price-heading" className="mt-6 scroll-mt-28">
-        <h2 id="price-heading" className="sr-only">
-          Price and key numbers
-        </h2>
-        <PriceChart ticker={ticker} />
-        <StatsGrid ticker={ticker} />
-      </section>
-
-      <SentimentCard ticker={ticker} />
-
-      <SimilarItems ticker={ticker} />
+        )}
+      </PageHero>
 
       {loading && (
         <div className="mt-6 space-y-4">
@@ -186,15 +176,15 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           <p className="text-sm text-moderate-700">{error.message}</p>
           {!user && (
             <p className="mt-2 text-sm text-moderate-700">
-              <Link href="/login" className="font-medium underline">
+              <Link href={`/login?next=/tickers/${ticker}`} className="font-medium underline">
                 Sign in
               </Link>{" "}
-              then come back to this page.
+              and we&apos;ll bring you back to this page.
             </p>
           )}
           {user && (
             <Button onClick={load} className="mt-3">
-              Retry now that you're signed in
+              Retry now that you&apos;re signed in
             </Button>
           )}
         </div>
@@ -203,7 +193,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
       {error && error.status === 404 && (
         <div className="mt-6 max-w-[65ch] border-t border-slate-200 pt-6">
           <p className="font-serif text-lg leading-8 text-slate-700">{error.message}</p>
-          <p className="mt-1 text-sm text-slate-500">The price chart and key numbers above are still available.</p>
+          <p className="mt-1 text-sm text-slate-500">The price chart and key numbers below are still available.</p>
 
           {requestStatus === "sent" ? (
             <p role="status" className="mt-4 rounded-lg bg-positive-50 px-3 py-2 text-sm text-positive-700">
@@ -215,7 +205,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             </Button>
           ) : (
             <p className="mt-4 text-sm text-slate-600">
-              <Link href="/login" className="font-medium text-brand-700 underline">
+              <Link href={`/login?next=/tickers/${ticker}`} className="font-medium text-brand-700 underline">
                 Sign in
               </Link>{" "}
               to request an explanation for {ticker}.
@@ -246,35 +236,51 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
             <div className="sticky top-28">
               <p className="text-sm font-semibold text-slate-900">On this page</p>
               <ul className="mt-3 border-l border-slate-200">
-                {[
-                  { id: "price", label: "Price and key numbers" },
-                  ...SECTIONS,
-                  ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : []),
-                ].map(
-                  ({ id, label }) => (
-                    <li key={id}>
-                      <a
-                        href={`#${id}`}
-                        className="-ml-px block border-l-2 border-transparent py-1.5 pl-3 text-sm text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-700"
-                      >
-                        {label}
-                      </a>
-                    </li>
-                  ),
-                )}
+                {navItems.map(({ id, label }) => (
+                  <li key={id}>
+                    <a
+                      href={`#${id}`}
+                      className="-ml-px block border-l-2 border-transparent py-1.5 pl-3 text-sm text-slate-600 transition-colors hover:border-brand-500 hover:text-brand-700"
+                    >
+                      {label}
+                    </a>
+                  </li>
+                ))}
               </ul>
             </div>
           </nav>
 
-          <div className="rounded-xl border border-brand-100 bg-brand-50 px-4 py-3">
-            <p className="text-sm leading-relaxed text-brand-900">
+          {/* Phones and tablets: the same links, as one line that scrolls sideways. */}
+          <nav aria-label="On this page" className="flex gap-2 overflow-x-auto pb-1 lg:hidden">
+            {navItems.map(({ id, label }) => (
+              <a
+                key={id}
+                href={`#${id}`}
+                className="shrink-0 rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50"
+              >
+                {label}
+              </a>
+            ))}
+          </nav>
+
+          <div className="rounded-xl border border-moderate-100 bg-moderate-50 px-4 py-3">
+            <p className="text-sm leading-relaxed text-slate-800">
               <span className="font-semibold">This is an AI-generated explanation, not financial advice.</span>{" "}
               Use it to understand what happened - not as a recommendation to buy, sell, or hold.
             </p>
           </div>
 
           {SECTIONS.map(({ key, id, label }, s) => (
-            <section key={key} id={id} className="scroll-mt-28 border-t border-slate-200 pt-6">
+            <section
+              key={key}
+              id={id}
+              className={`scroll-mt-28 ${
+                // The takeaway is what a reader should leave with, so it stands apart.
+                key === "why_it_matters"
+                  ? "rounded-2xl border border-slate-200 bg-white p-6 shadow-card"
+                  : "border-t border-slate-200 pt-6"
+              }`}
+            >
               <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">{label}</h2>
               <SectionBody
                 sectionKey={key}
@@ -285,7 +291,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           ))}
 
           {data.glossary.length > 0 && (
-            <section className="border-t border-slate-200 pt-6">
+            <section id="terms" className="scroll-mt-28 border-t border-slate-200 pt-6">
               <h2 className="font-serif text-2xl font-semibold tracking-tight text-slate-900">Terms used</h2>
               <dl className="mt-3 space-y-2.5">
                 {data.glossary.map((g) => (
@@ -317,6 +323,18 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
           )}
         </div>
       )}
+
+      <section id="price" aria-labelledby="price-heading" className="mt-14 scroll-mt-28 border-t border-slate-200 pt-8">
+        <h2 id="price-heading" className="mb-6 font-serif text-3xl font-semibold tracking-tight text-slate-900">
+          Price and key numbers
+        </h2>
+        <PriceChart ticker={ticker} />
+        <StatsGrid ticker={ticker} />
+      </section>
+
+      <SentimentCard ticker={ticker} />
+
+      <SimilarItems ticker={ticker} />
     </div>
   );
 }

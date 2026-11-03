@@ -25,7 +25,7 @@ function SearchRow({ result }: { result: SearchResult }) {
     <li>
       <Link
         href={`${KIND_PATH[result.kind]}/${result.ticker}`}
-        className="group flex flex-col gap-2 px-2 py-5 transition-colors hover:bg-white sm:flex-row sm:items-start sm:justify-between sm:gap-6"
+        className="group flex flex-col gap-2 rounded-2xl px-4 py-5 transition-colors hover:bg-slate-50 sm:px-5 sm:flex-row sm:items-start sm:justify-between sm:gap-6"
       >
         <div className="min-w-0">
           <p className="font-serif text-lg font-semibold leading-tight text-slate-900 group-hover:text-brand-700">
@@ -120,7 +120,7 @@ export function SearchSection({ kind, children }: { kind: SearchKind; children: 
           maxLength={50}
           autoComplete="off"
           placeholder={kind === "stock" ? "For example: Tesla or AMD" : "For example: Vanguard or VTI"}
-          className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-base transition-colors focus:border-brand-500"
+          className="w-full rounded-full border border-slate-300 bg-white px-5 py-3 text-base shadow-card transition-colors focus:border-brand-500"
         />
       </div>
 
@@ -135,9 +135,9 @@ export function SearchSection({ kind, children }: { kind: SearchKind; children: 
           )}
 
           {!error && searching && !data && (
-            <div className="divide-y divide-slate-200 border-y border-slate-200">
+            <div className="row-list">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="px-2 py-5">
+                <div key={i} className="px-4 py-5 sm:px-5">
                   <Skeleton className="h-5 w-48" />
                   <Skeleton className="mt-2 h-4 w-32" />
                 </div>
@@ -146,7 +146,7 @@ export function SearchSection({ kind, children }: { kind: SearchKind; children: 
           )}
 
           {!error && data && results.length > 0 && (
-            <ul className={`divide-y divide-slate-200 border-y border-slate-200 ${searching ? "opacity-60" : ""}`}>
+            <ul className={`row-list ${searching ? "opacity-60" : ""}`}>
               {results.map((r) => (
                 <SearchRow key={r.ticker} result={r} />
               ))}
@@ -162,7 +162,7 @@ export function SearchSection({ kind, children }: { kind: SearchKind; children: 
           {!error && data && others.length > 0 && (
             <div className="mt-6">
               <p className="text-sm font-medium text-slate-700">Also matches these {otherNoun}:</p>
-              <ul className="mt-2 divide-y divide-slate-200 border-y border-slate-200">
+              <ul className="row-list mt-2">
                 {others.map((r) => (
                   <SearchRow key={r.ticker} result={r} />
                 ))}
