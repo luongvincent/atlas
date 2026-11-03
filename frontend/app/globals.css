@@ -6,6 +6,21 @@ body {
   @apply bg-slate-50 text-slate-900 antialiased;
 }
 
+/* Page and section headings are written as `font-serif` across the app; this
+   swaps them to the display face in one place. Specificity (0,1,1) beats the
+   `.font-serif` utility (0,1,0). h3 and body text stay serif for reading. */
+h1.font-serif,
+h2.font-serif {
+  font-family: var(--font-display), system-ui, sans-serif;
+}
+
+/* The white panel around every list of stocks, ETFs, articles and search results. */
+@layer components {
+  .row-list {
+    @apply divide-y divide-slate-200 rounded-2xl border border-slate-200 bg-white shadow-card;
+  }
+}
+
 /* Smooth in-page jumps (the explain page's "On this page" links), unless the
    user has asked their system for reduced motion. */
 html {
