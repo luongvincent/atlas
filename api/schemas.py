@@ -1,9 +1,10 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StringConstraints
 
+from core.ask_chain import ChatTurn
 from core.explainer_chain import Citation, ExplanationSections
 from core.explanation_adapter import GlossaryEntry
 from core.market_data import ChartPoint
@@ -122,3 +123,16 @@ class StrategyOverviewResponse(BaseModel):
 class SimilarItemsResponse(BaseModel):
     ticker: str
     items: list[SimilarItem]
+
+
+class AskRequest(BaseModel):
+    question: Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=500)]
+    # Only the last few turns: each one is resent to Groq on every question.
+    history: list[ChatTurn] = Field(default_factory=list, max_length=6)
+
+
+class AskResponse(BaseModel):
+    ticker: str
+    quarter: str
+    answer: str
+    citations: list[Citation]
