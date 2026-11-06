@@ -70,7 +70,8 @@ async def get_onboarding(
             detail="Failed to fetch risk profile",
         )
 
-    if not result.data:
+    # maybe_single() returns None (not an empty result) when the user has no row yet.
+    if not result or not result.data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Risk profile not found",
