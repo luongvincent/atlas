@@ -175,3 +175,20 @@ export interface SentimentResult {
   prepared_remarks: number | null;
   qa: number | null;
 }
+
+export interface ChatTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AskRequest {
+  question: string;
+  history: ChatTurn[];
+}
+
+export interface AskResponse {
+  ticker: string;
+  quarter: string;
+  answer: string;
+  citations: Citation[];
+}
