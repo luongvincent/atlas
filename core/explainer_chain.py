@@ -5,6 +5,7 @@ explanation, grounded and cited.
 from __future__ import annotations
 
 import logging
+import re
 from typing import Literal
 
 from langchain_core.documents import Document
@@ -122,6 +123,27 @@ def _normalize(text: str) -> str:
     return " ".join(text.split()).casefold()
 
 
+MIN_QUOTE_PIECE_WORDS = 4
+
+
+def _quote_in(quote: str, text: str) -> bool:
+    """True if the quote appears verbatim in text. Models shorten long quotes with "...", so
+    each "..."-separated piece must appear verbatim, in order, and be at least
+    MIN_QUOTE_PIECE_WORDS words, so tiny fragments can't be stitched into a misleading quote.
+    """
+    haystack = _normalize(text)
+    pieces = [_normalize(p) for p in re.split(r"\.\.\.|…", quote) if p.strip()]
+    if len(pieces) > 1 and any(len(p.split()) < MIN_QUOTE_PIECE_WORDS for p in pieces):
+        return False
+    pos = 0
+    for piece in pieces:
+        pos = haystack.find(piece, pos)
+        if pos == -1:
+            return False
+        pos += len(piece)
+    return bool(pieces)
+
+
 def _resolve_citations(drafts: list[_CitationDraft], labelled: dict[str, Document]) -> list[Citation]:
     """Keep only citations whose label points at a retrieved chunk and whose
     quote really appears in it. Speaker/section come from the chunk's own
@@ -131,7 +153,7 @@ def _resolve_citations(drafts: list[_CitationDraft], labelled: dict[str, Documen
     for draft in drafts:
         doc = labelled.get(draft.excerpt_label.strip().strip("[]").upper())
         quote = draft.quote.strip()
-        if doc is None or not quote or _normalize(quote) not in _normalize(doc.page_content):
+        if doc is None or not quote or not _quote_in(quote, doc.page_content):
             logger.warning("Dropping ungrounded citation (label=%r)", draft.excerpt_label)
             continue
         citations.append(

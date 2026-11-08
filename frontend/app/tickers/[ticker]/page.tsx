@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { AskPanel } from "@/components/AskPanel";
 import { useAuth } from "@/components/AuthProvider";
 import { Button } from "@/components/Button";
 import { PageHero } from "@/components/PageHero";
@@ -130,6 +131,7 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
         ...SECTIONS,
         ...(data.glossary.length > 0 ? [{ id: "terms", label: "Terms used" }] : []),
         ...(data.citations.length > 0 ? [{ id: "citations", label: "Citations" }] : []),
+        { id: "ask", label: "Ask a question" },
         { id: "price", label: "Price and key numbers" },
       ]
     : [];
@@ -321,6 +323,9 @@ export default function TickerExplainPage({ params }: { params: { ticker: string
               </ul>
             </section>
           )}
+
+          {/* key resets the conversation when "Similar to" links switch stocks. */}
+          <AskPanel key={ticker} ticker={ticker} />
         </div>
       )}
 

@@ -68,3 +68,15 @@ def test_one_bad_attempt_is_retried(monkeypatch):
 def test_two_bad_attempts_still_raise(monkeypatch):
     with pytest.raises(NoGroundedCitationsError):
         _run_sequence(monkeypatch, [BAD, BAD])
+
+
+def test_quote_shortened_with_ellipsis_verifies_only_when_every_piece_is_verbatim_and_in_order():
+    from core.explainer_chain import _quote_in
+
+    text = "Concerns with asset quality will always remain and they should remain. Credit risk is first in our priority list."
+    assert _quote_in("concerns with asset quality will always remain... credit risk is first in our priority list.", text)
+    assert _quote_in("Concerns with asset quality will always remain … Credit risk is first", text)
+    assert not _quote_in("credit risk is first in our ... concerns with asset quality will always", text)  # wrong order
+    assert not _quote_in("concerns with asset quality will always remain... profits tripled this year", text)  # invented piece
+    assert not _quote_in("asset quality... first", text)  # fragments too short to stitch
+    assert not _quote_in("...", text)

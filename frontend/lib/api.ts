@@ -1,5 +1,7 @@
 import type {
   ApiErrorBody,
+  AskRequest,
+  AskResponse,
   ChartRangeOption,
   ChartResponse,
   EtfHoldings,
@@ -131,4 +133,12 @@ export async function getOnboarding(
 }
 export function getSentiment(ticker: string): Promise<SentimentResult> {
   return request<SentimentResult>(`/sentiment/${encodeURIComponent(ticker)}`);
+}
+
+export function askQuestion(ticker: string, payload: AskRequest, accessToken: string): Promise<AskResponse> {
+  return request<AskResponse>(`/ask/${encodeURIComponent(ticker)}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
+    accessToken,
+  });
 }
