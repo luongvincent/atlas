@@ -1,0 +1,60 @@
+{"arm": "cag", "id": 0, "score": 1.0, "reason": "The answer correctly states the $109.4 billion revenue, 16% increase, and June‑quarter record, with no contradictions."}
+{"arm": "rag", "id": 0, "score": 1.0, "reason": "The answer correctly states the $109.4 billion revenue, 16% increase, and June‑quarter record without contradictions."}
+{"arm": "cag", "id": 1, "score": 1.0, "reason": "Correctly states the 50.1% margin and the ~2‑point tariff refund effect matching the reference"}
+{"arm": "rag", "id": 1, "score": 0.0, "reason": "The answer incorrectly claims the call did not cover gross margin, contradicting the reference which provides the margin figure."}
+{"arm": "cag", "id": 2, "score": 1.0, "reason": "The answer correctly states the 9%‑11% growth expectation and the two reasons (FX headwind ~2.5 points and worsening supply constraints) without contradiction."}
+{"arm": "rag", "id": 2, "score": 1.0, "reason": "The answer correctly states the 9%‑11% growth expectation and the two reasons (FX headwind and worsening supply constraints) without contradicting the reference."}
+{"arm": "cag", "id": 3, "score": 0.5, "reason": "Includes analyst names and supply constraint topic but omits the specific growth numbers and expected deceleration cited in the reference."}
+{"arm": "rag", "id": 3, "score": 0.5, "reason": "Missing the reference's key facts (analyst name and growth numbers) but does not contradict them."}
+{"arm": "cag", "id": 4, "score": 0.5, "reason": "Includes main points about advanced nodes and demand forecast miss but omits the specific percentage figures, no contradictions."}
+{"arm": "rag", "id": 4, "score": 1.0, "reason": "The answer correctly states the advanced node constraint and the demand‑forecast issue with the 22% iPhone and 29% Mac growth, matching the reference without contradictions."}
+{"arm": "cag", "id": 5, "score": 1.0, "reason": "The answer correctly states all reference numbers and trends without contradiction, and extra details do not conflict."}
+{"arm": "rag", "id": 5, "score": 1.0, "reason": "The answer correctly states the $96 billion total revenue and $89 billion data‑center revenue with the 18% increase, matching the reference without contradictions."}
+{"arm": "cag", "id": 6, "score": 1.0, "reason": "The answer correctly states the 70% revenue growth expectation for fiscal 2028 and adds consistent details without contradicting the reference."}
+{"arm": "rag", "id": 6, "score": 1.0, "reason": "The answer correctly states the 70% revenue growth expectation for fiscal 2028 and adds no contradictory information."}
+{"arm": "cag", "id": 7, "score": 0.5, "reason": "Includes correct future margin numbers but incorrectly states the current quarter margin as 75% instead of the reference's 74%"}
+{"arm": "rag", "id": 7, "score": 1.0, "reason": "The answer correctly states all the reference numbers and direction without contradiction, and extra details do not conflict."}
+{"arm": "cag", "id": 8, "score": 1.0, "reason": "The answer correctly captures all key facts from the reference without contradiction."}
+{"arm": "rag", "id": 8, "score": 1.0, "reason": "The answer correctly captures all key facts from the reference without contradiction."}
+{"arm": "cag", "id": 9, "score": 1.0, "reason": "The answer correctly states the inventory increase to $32 billion and links it to the Vera Rubin launch, matching the reference without contradictions."}
+{"arm": "rag", "id": 9, "score": 0.0, "reason": "The answer claims the call didn't cover inventory reasons, contradicting the reference which states inventory rose to $32 billion due to the Vera Rubin launch preparation."}
+{"arm": "cag", "id": 10, "score": 1.0, "reason": "The answer correctly states the revenue amount and the $1.4 billion above guidance without contradiction, and extra details do not conflict."}
+{"arm": "rag", "id": 10, "score": 0.0, "reason": "The answer claims the call didn't give total revenue and provides no $13.6 billion figure, contradicting the reference."}
+{"arm": "cag", "id": 11, "score": 1.0, "reason": "The answer correctly states the 41% gross margin and the 650‑basis‑point (6.5 percentage point) beat of guidance without contradiction."}
+{"arm": "rag", "id": 11, "score": 1.0, "reason": "The answer correctly states the 41% gross margin and the ~650 basis point beat of guidance without contradictions."}
+{"arm": "cag", "id": 12, "score": 1.0, "reason": "The answer correctly states the margin, EPS and aligns with the reference's figures without contradictions."}
+{"arm": "rag", "id": 12, "score": 1.0, "reason": "The answer correctly states all key figures and reasons from the reference without contradiction."}
+{"arm": "cag", "id": 13, "score": 1.0, "reason": "The answer correctly includes Intel's flagged risks of PC demand weakening and rising component costs, matching the reference without contradictions."}
+{"arm": "rag", "id": 13, "score": 0.5, "reason": "Mentions rising input costs as a risk, matching the reference, but omits the PC demand weakening and expected low double‑digit decline, so only partially correct."}
+{"arm": "cag", "id": 14, "score": 1.0, "reason": "The answer correctly identifies Benjamin Reitzes asking about the Google deal and other LTAs, matching the reference without contradictions."}
+{"arm": "rag", "id": 14, "score": 1.0, "reason": "The answer correctly identifies Benjamin Reitzes asking about the Google deal and other LTAs, matching the reference without contradictions."}
+{"arm": "cag", "id": 15, "score": 1.0, "reason": "The answer correctly states Ford's revenue as $43.3 billion and adjusted EBIT as $3.5 billion, matching the reference without contradictions."}
+{"arm": "rag", "id": 15, "score": 1.0, "reason": "The answer correctly states Ford's revenue as $43.3 billion and adjusted EBIT as $3.5 billion, matching the reference without contradiction."}
+{"arm": "cag", "id": 16, "score": 1.0, "reason": "The answer correctly states the raised full-year adjusted EBIT range and free cash flow range without contradicting the reference."}
+{"arm": "rag", "id": 16, "score": 1.0, "reason": "The answer correctly states the raised full-year adjusted EBIT range and includes no contradictions."}
+{"arm": "cag", "id": 17, "score": 1.0, "reason": "The answer correctly states the $1.3 billion IEPA benefit and aligns with the reference without contradictions."}
+{"arm": "rag", "id": 17, "score": 1.0, "reason": "The answer correctly states the $1.3 billion IEPA benefit and includes no contradictions."}
+{"arm": "cag", "id": 18, "score": 1.0, "reason": "The answer correctly states both omitted risks and adds non-contradictory extra details."}
+{"arm": "rag", "id": 18, "score": 0.0, "reason": "The answer fails to mention the omitted Middle East conflict and US downturn and claims the call gave no list, contradicting the reference."}
+{"arm": "cag", "id": 19, "score": 1.0, "reason": "The answer correctly states the $1 billion commodity cost increase question and adds extra non‑contradictory details."}
+{"arm": "rag", "id": 19, "score": 1.0, "reason": "Includes all reference facts correctly and adds extra detail without contradiction"}
+{"arm": "cag", "id": 20, "score": 1.0, "reason": "All reference numbers (93% overall, 115% U.S., 149% U.S. commercial) are correctly stated and no contradictions are present."}
+{"arm": "rag", "id": 20, "score": 0.0, "reason": "Provides correct overall and U.S. growth numbers but gives an incorrect commercial growth figure (110% vs reference 149%), contradicting the reference."}
+{"arm": "cag", "id": 21, "score": 1.0, "reason": "The answer correctly states the full-year 2026 revenue guidance midpoint and U.S. commercial revenue guidance matching the reference, with no contradictions."}
+{"arm": "rag", "id": 21, "score": 0.0, "reason": "The answer claims no guidance was given, contradicting the reference that provides specific raised guidance numbers."}
+{"arm": "cag", "id": 22, "score": 1.0, "reason": "The answer correctly states the $1.22 billion adjusted free cash flow, its highest ever, 63% margin and 115% YoY increase, matching the reference without contradictions."}
+{"arm": "rag", "id": 22, "score": 0.0, "reason": "The answer claims no dollar figure was given, contradicting the reference which states adjusted free cash flow was $1.22 billion"}
+{"arm": "cag", "id": 23, "score": 1.0, "reason": "The answer correctly captures the three‑year timeline, the focus on owning data, and the question about why Palantir's earlier AI approach wasn't recognized, without contradictions."}
+{"arm": "rag", "id": 23, "score": 0.0, "reason": "The answer claims no question was asked, contradicting the reference that specifies Mariana Perez Mora asked about data and AI timing."}
+{"arm": "cag", "id": 24, "score": 1.0, "reason": "The answer correctly states the call did not discuss layoffs and does not invent any statements."}
+{"arm": "rag", "id": 24, "score": 1.0, "reason": "The answer correctly states the call did not discuss layoffs and does not add any invented statements."}
+{"arm": "cag", "id": 25, "score": 1.0, "reason": "The answer correctly states the call did not discuss Bitcoin or crypto mining, matching the reference."}
+{"arm": "rag", "id": 25, "score": 1.0, "reason": "The answer correctly states the call did not discuss Bitcoin or crypto mining, matching the reference."}
+{"arm": "cag", "id": 26, "score": 1.0, "reason": "The answer correctly states the call did not discuss a stock split and does not invent any statement about it."}
+{"arm": "rag", "id": 26, "score": 1.0, "reason": "The answer correctly states the call did not discuss a stock split and does not invent any statement."}
+{"arm": "cag", "id": 27, "score": 1.0, "reason": "The answer correctly states the call did not cover dividends and does not invent any dividend amount."}
+{"arm": "rag", "id": 27, "score": 1.0, "reason": "The answer correctly states the call did not cover dividends and does not invent any dividend amount."}
+{"arm": "cag", "id": 28, "score": 1.0, "reason": "The answer correctly states the call did not cover Formula 1, matching the reference and not inventing any statement."}
+{"arm": "rag", "id": 28, "score": 1.0, "reason": "The answer correctly states the call did not cover Formula 1, matching the reference and not inventing any statement."}
+{"arm": "cag", "id": 29, "score": 1.0, "reason": "The answer correctly states the call did not cover stock buybacks and does not invent any information."}
+{"arm": "rag", "id": 29, "score": 1.0, "reason": "The answer correctly states the call did not cover share buybacks and does not fabricate any amount."}
