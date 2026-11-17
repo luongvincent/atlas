@@ -51,3 +51,6 @@ out/
 # MLflow local tracking store
 mlruns/
 mlflow.db
+
+# Local project notes for Claude
+CLAUDE.md
