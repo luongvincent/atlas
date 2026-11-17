@@ -2,6 +2,8 @@
 
 **Stocks, plainly explained.**
 
+Live at https://www.atlasaiexplainer.com/
+
 A fintech MVP that turns dense quarterly earnings call transcripts into
 plain-language explanations for regular consumers - no finance background
 required. Built with family and retirement planning in mind, not day
@@ -41,6 +43,19 @@ top holdings, and sector breakdowns for each.
 6. **`GET /etfs`** / **`GET /etfs/ca`** list the supported US and Canadian
    ETFs; **`GET /etfs/{ticker}/holdings`** returns top holdings and sector
    breakdown for a given ETF.
+7. **`POST /ask/{ticker}`** is a chat panel on each stock page: a signed-in
+   reader asks a question about the latest call and gets an answer grounded
+   in that call's transcript chunks, with citations checked the same way
+   as `/explain` (quotes must appear verbatim in the cited chunk). Not
+   cached, so it has the tightest rate limit.
+8. **`GET /sentiment/{ticker}`** scores the ingested call's chunks with
+   VADER and returns the average tone for prepared remarks vs. Q&A.
+9. **`GET /similar/{ticker}`** suggests related stocks or ETFs from simple,
+   explainable rules (same sector/industry, same fund category).
+10. **`GET /strategy-overview`** gives a signed-in, onboarded user a general,
+    educational overview of what their risk profile usually means in
+    practice. Not personalized advice and no specific tickers; cached per
+    (risk profile, experience level), so there are at most 12 versions.
 
 ## Architecture
 
@@ -59,12 +74,16 @@ flowchart TB
         chart["GET /chart/ticker"]
         stats["GET /stats/ticker"]
         etfs["GET /etfs, /etfs/ca,\n/etfs/ticker/holdings"]
+        ask["POST /ask/ticker"]
+        extras["GET /sentiment, /similar,\n/strategy-overview"]
         mw --> tickers
         mw --> explain
         mw --> onboarding
         mw --> chart
         mw --> stats
         mw --> etfs
+        mw --> ask
+        mw --> extras
     end
 
     subgraph Core["core/"]
@@ -77,6 +96,10 @@ flowchart TB
         marketdata["market_data.py\nprice history"]
         tickerstats["ticker_stats.py\nfundamentals + risk metrics"]
         etfholdings["etf_holdings.py\ntop holdings + sectors"]
+        askchain["ask_chain.py\nchat Q&A, cited"]
+        sentiment["sentiment.py\nVADER tone"]
+        similaritems["similar_items.py\nrule-based recs"]
+        strategyov["strategy_overview.py\nprofile overview"]
     end
 
     subgraph Ingestion["ingestion/ (offline, scripts/run_ingestion.py)"]
@@ -87,7 +110,7 @@ flowchart TB
     end
 
     Pinecone[(Pinecone\ntranscript chunks)]
-    Supabase[(Supabase / Postgres\ntickers, profiles, risk_profiles,\nrequest_logs, cached_explanations)]
+    Supabase[(Supabase / Postgres\ntickers, profiles, risk_profiles,\nrequest_logs, cached_explanations,\ncached_strategy_overviews,\nexplanation_requests)]
     Groq[[Groq API]]
     Fool[[Motley Fool transcripts]]
     Yahoo[[Yahoo Finance\nvia yfinance]]
@@ -106,63 +129,17 @@ flowchart TB
     chart --> marketdata --> Yahoo
     stats --> tickerstats --> Yahoo
     etfs --> etfholdings --> Yahoo
+    ask --> auth
+    ask --> askchain
+    askchain --> llm
+    askchain --> vstore
+    extras --> sentiment --> Pinecone
+    extras --> similaritems
+    extras --> strategyov --> llm
+    extras --> Supabase
     pipeline --> vstore
     pipeline --> Supabase
     source --> Fool
-```
-
-## Setup
-
-Requires Python 3.11+, a Supabase project, a Pinecone account, and a Groq
-API key.
-
-```bash
-python -m venv venv
-./venv/Scripts/pip install -r requirements.txt   # venv/bin/pip on macOS/Linux
-
-cp .env.example .env
-# fill in GROQ_API_KEY, PINECONE_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY,
-# SUPABASE_SERVICE_ROLE_KEY, DATABASE_URL
-
-./venv/Scripts/python.exe scripts/apply_migrations.py    # applies /migrations, idempotent
-./venv/Scripts/python.exe scripts/seed_tickers.py         # seeds tickers table from config/tickers.py
-./venv/Scripts/python.exe scripts/run_ingestion.py         # ingests all 15 tickers (takes a while)
-
-./venv/Scripts/python.exe -m uvicorn main:app --reload
-```
-
-Then visit `http://localhost:8000/docs` for interactive API docs.
-
-### Frontend
-
-A minimal Next.js (App Router, TypeScript, Tailwind) UI lives in `/frontend` -
-a stock ticker grid with price charts and stats, an ETF grid (US and Canada)
-with holdings/sector breakdowns, a Learn section with short educational
-write-ups, an explanation page (sections/citations/glossary) for stocks, and
-a risk-profile preferences form. Auth is Supabase email/password via
-`@supabase/supabase-js` directly in the browser (no custom backend auth).
-
-```bash
-cd frontend
-npm install
-cp .env.local.example .env.local   # fill in NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY
-                                     # (same Supabase project as the backend's .env)
-npm run dev
-```
-
-Visit `http://localhost:3000`. Make sure `CORS_ALLOWED_ORIGINS` in the
-backend's `.env` includes the frontend's origin.
-
-### Useful commands
-
-```bash
-./venv/Scripts/python.exe -m pytest tests/ -q                    # run tests
-./venv/Scripts/python.exe -m uvicorn main:app --reload            # run the API locally
-./venv/Scripts/python.exe scripts/apply_migrations.py             # apply any new migrations (idempotent)
-./venv/Scripts/python.exe scripts/seed_tickers.py                 # seed/refresh the tickers table
-./venv/Scripts/python.exe scripts/run_ingestion.py [TICKER ...]   # ingest transcripts (all 15 if no args)
-./venv/Scripts/python.exe scripts/verify_transcripts.py           # re-check scraper health across all 15
-./venv/Scripts/python.exe scripts/list_requests.py                # most-requested stocks outside the top 15
 ```
 
 ## API
@@ -178,6 +155,10 @@ backend's `.env` includes the frontend's origin.
 | `GET /etfs`                   | none     | Top 15 supported US ETFs                                                                                                                                                 |
 | `GET /etfs/ca`                | none     | Top 15 supported Canadian ETFs                                                                                                                                           |
 | `GET /etfs/{ticker}/holdings` | none     | Top holdings and sector breakdown for any well-formed US or Canadian ETF symbol. 404 if malformed/no data, 502 if the upstream data source fails.                       |
+| `POST /ask/{ticker}`          | required | Body: `question` (1-500 chars) and up to 6 prior `history` turns. Answer grounded in that ticker's latest call, with verified citations. 404 if unsupported/not ingested, 502 if generation fails. 5/minute. |
+| `GET /sentiment/{ticker}`     | none     | VADER tone of the latest call, prepared remarks vs. Q&A. 404 if unsupported/not ingested. Relative between tickers, not absolute.                                        |
+| `GET /similar/{ticker}`       | none     | Related stocks (by sector/industry) or ETFs (by category, same region), each with a one-line reason.                                                                     |
+| `GET /strategy-overview`      | required | General educational overview for the caller's risk profile. 404 if onboarding isn't done. Cached per (profile, experience).                                              |
 | `GET /onboarding`             | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed.                                                                          |
 | `POST /onboarding`            | required | 5-question preferences form -> upserts a risk profile                                                                                                                    |
 | `GET /health`                 | none     | Liveness check                                                                                                                                                            |
@@ -194,7 +175,10 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   reads but restricts writes to authenticated callers - a deliberate
   trade-off documented in `CLAUDE.md`: anyone can read an already-generated
   explanation for free, but generating a new one requires an account.
-  `tickers` is public-read, admin-write only.
+  `tickers` is public-read, admin-write only. `cached_strategy_overviews`
+  follows the same pattern as `cached_explanations` (public read,
+  authenticated write). `explanation_requests` is owner-scoped for
+  select/insert/delete.
 - **No custom auth**: the app uses Supabase Auth exclusively (`core/auth.py`
   hands bearer tokens to Supabase's own `auth.get_user()` for verification -
   JWTs are never decoded/verified locally). `passlib` is listed as a
@@ -207,8 +191,10 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   `get_request_client()`, which uses the anon key and applies RLS.
 - **Rate limiting**: `slowapi`-backed, keyed per-user (hashed bearer token)
   when authenticated, per-IP otherwise (see `core/rate_limit.py`). App-wide
-  default of 100 requests/minute; `GET /explain/{ticker}` is stricter at
-  10/minute since it can trigger a Groq call. Rate-limited responses return
+  default of 100 requests/minute; `GET /explain/{ticker}` and
+  `GET /strategy-overview` are stricter at 10/minute since they can trigger
+  a Groq call, and `POST /ask/{ticker}` is 5/minute since every question is
+  an uncached Groq call. Rate-limited responses return
   `429` with a `Retry-After` header.
 - **Security headers**: `core/security_headers.py` adds
   `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options`,
@@ -248,6 +234,42 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   yfinance directly and are computed from trailing 1-year daily returns
   (methodology documented in `core/ticker_stats.py`); P/E, P/B, PEG,
   dividend yield, and beta are read straight from Yahoo's data.
+- Citations are checked, not trusted: each one the model drafts must quote
+  text that actually appears in the chunk it cites. Citations that fail are
+  dropped, and if none pass, generation retries once. `/explain` and
+  `/ask` share this check (`core/explainer_chain.py`).
+- Cached explanations carry a prompt version, so changing the prompt
+  regenerates old entries instead of serving stale ones.
+- Sentiment uses VADER, a general-purpose lexicon, not a finance-tuned
+  model. It reads corporate language as mildly positive, so compare scores
+  between tickers or sections, not against an absolute scale.
+- MLflow tracing (`core/tracing.py`) is off by default. With
+  `MLFLOW_TRACING_ENABLED=true` it autologs the LangChain/Groq chains to a
+  local `mlflow.db`. Traces hold prompts and outputs but no user ids,
+  tokens or request bodies, and a tracing failure never takes the app down.
+
+## Evals
+
+`evals/` compares RAG (top-k chunks, what production does) with CAG (the
+whole transcript in the prompt) on the `/ask` chain. The eval set
+(`evals/atlas_eval_set.json`) has 24 answerable questions and 6
+out-of-scope ones across 5 companies. Every reference quote is checked to
+appear verbatim in its cited chunk. Both arms run the production
+`answer_question` unchanged; only the model call and, for CAG, the
+retrieval step are swapped.
+
+Gemini's free tier couldn't finish the run, so answers came from blind
+Claude subagents (`evals/claude_generator.py`), and Groq `gpt-oss-120b`
+judged them. Results (`evals/results/report.md`), single run:
+
+| Arm | Correctness | Cites gold evidence | Citations verified | Out-of-scope abstention | Input tokens / q |
+| --- | --- | --- | --- | --- | --- |
+| RAG | 0.625 | 14/24 | 100% | 6/6 | ~1.9K |
+| CAG | 0.938 | 23/24 | 100% | 6/6 | ~11.8K |
+
+CAG is significantly more correct (+0.31, 95% CI [+0.13, +0.52]) at about
+6x the input tokens. Production stays on RAG because a whole transcript
+doesn't fit Groq's free-tier 8K tokens/minute cap.
 
 See `CLAUDE.md` for the full build history, gotchas, and design
 decisions behind the choices above.
