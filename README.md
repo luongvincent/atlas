@@ -22,148 +22,59 @@ top holdings, and sector breakdowns for each.
 1. **Ingestion** scrapes the latest earnings call transcript for each
    ticker, splits it into per-speaker chunks (prepared remarks vs. Q&A),
    embeds them locally, and upserts them to Pinecone.
-2. **`GET /explain/{ticker}`** retrieves the most relevant chunks, asks
-   Groq (`openai/gpt-oss-120b`) to produce a grounded, plain-language
-   explanation with citations, and caches it in Supabase so repeat
-   requests are free.
-3. **`POST /onboarding`** collects a 5-question preferences form and derives a risk
-   profile (conservative / moderate / aggressive). `GET /explain` then
-   adapts tone and depth to that profile - more glossary definitions for
+2. **Explanations**: relevant chunks are retrieved and Groq
+   (`openai/gpt-oss-120b`) produces a grounded, plain-language explanation
+   with citations. Results are cached in Supabase so repeat requests are
+   free.
+3. **Onboarding** is a 5-question preferences form that derives a risk
+   profile (conservative / moderate / aggressive), saved per user. Explanations
+   then adapt tone and depth to that profile - more glossary definitions for
    beginners, a tailored closing note based on risk comfort - as a cheap,
    deterministic post-processing pass on the cached explanation, not a
    second LLM call.
-4. **`GET /onboarding`**
-   retrieves the authenticated user's saved profile so onboarding state
-   persists across page visits.
-5. **`GET /chart/{ticker}`** and **`GET /stats/{ticker}`** serve price
-   history and valuation/risk metrics (P/E, Sharpe ratio, beta, etc.) for
-   any supported stock or ETF ticker, pulled live from the market data
-   provider rather than cached - these are read-only market data lookups,
-   not AI-generated content.
-6. **`GET /etfs`** / **`GET /etfs/ca`** list the supported US and Canadian
-   ETFs; **`GET /etfs/{ticker}/holdings`** returns top holdings and sector
-   breakdown for a given ETF.
-7. **`POST /ask/{ticker}`** is a chat panel on each stock page: a signed-in
-   reader asks a question about the latest call and gets an answer grounded
-   in that call's transcript chunks, with citations checked the same way
-   as `/explain` (quotes must appear verbatim in the cited chunk). Not
-   cached, so it has the tightest rate limit.
-8. **`GET /sentiment/{ticker}`** scores the ingested call's chunks with
-   VADER and returns the average tone for prepared remarks vs. Q&A.
-9. **`GET /similar/{ticker}`** suggests related stocks or ETFs from simple,
+4. **Charts and stats** show price history and valuation/risk metrics (P/E,
+   Sharpe ratio, beta, etc.) for any supported stock or ETF, pulled live
+   from the market data provider rather than cached. These are read-only
+   market data lookups, not AI-generated content.
+5. **ETFs**: supported US and Canadian ETFs, with top holdings and sector
+   breakdowns.
+6. **Chat** is a panel on each stock page: a signed-in reader asks a
+   question about the latest call and gets an answer grounded in that call's
+   transcript chunks, with citations checked the same way as explanations
+   (quotes must appear verbatim in the cited chunk). Not cached, so it has
+   the tightest rate limit.
+7. **Sentiment** scores the ingested call's chunks with VADER and shows the
+   average tone for prepared remarks vs. Q&A.
+8. **Similar items** suggests related stocks or ETFs from simple,
    explainable rules (same sector/industry, same fund category).
-10. **`GET /strategy-overview`** gives a signed-in, onboarded user a general,
-    educational overview of what their risk profile usually means in
-    practice. Not personalized advice and no specific tickers; cached per
-    (risk profile, experience level), so there are at most 12 versions.
+9. **Strategy overview** gives a signed-in, onboarded user a general,
+   educational overview of what their risk profile usually means in
+   practice. Not personalized advice and no specific tickers; cached per
+   (risk profile, experience level), so there are at most 12 versions.
 
 ## Architecture
 
 ```mermaid
-flowchart TB
-    subgraph Client
-        user[Web / API client]
-    end
+flowchart LR
+    FE["Next.js + TypeScript + Tailwind"]
+    BE["FastAPI (Python 3.11)\nslowapi rate limiting"]
+    Auth["Supabase Auth"]
+    DB[("Supabase Postgres\nRLS")]
+    Vec[("Pinecone\ntranscript chunks")]
+    LC["LangChain + fastembed\n(local embeddings)"]
+    LLM[["Groq LLM"]]
+    YF[["yfinance"]]
+    MF[["Motley Fool transcripts\n(offline ingestion)"]]
 
-    subgraph API["FastAPI app (main.py)"]
-        direction TB
-        mw["CORS -> Security headers -> Rate limiting"]
-        tickers["GET /tickers"]
-        explain["GET /explain/ticker"]
-        onboarding["GET / POST /onboarding"]
-        chart["GET /chart/ticker"]
-        stats["GET /stats/ticker"]
-        etfs["GET /etfs, /etfs/ca,\n/etfs/ticker/holdings"]
-        ask["POST /ask/ticker"]
-        extras["GET /sentiment, /similar,\n/strategy-overview"]
-        mw --> tickers
-        mw --> explain
-        mw --> onboarding
-        mw --> chart
-        mw --> stats
-        mw --> etfs
-        mw --> ask
-        mw --> extras
-    end
-
-    subgraph Core["core/"]
-        auth["auth.py\nSupabase JWT verification"]
-        chain["explainer_chain.py\nRAG + Groq"]
-        adapter["explanation_adapter.py\ntone/depth post-processing"]
-        riskprofile["risk_profile.py\nquiz -> risk label"]
-        llm["llm.py\nChatGroq + retry/backoff"]
-        vstore["vector_store.py\nPinecone wrapper"]
-        marketdata["market_data.py\nprice history"]
-        tickerstats["ticker_stats.py\nfundamentals + risk metrics"]
-        etfholdings["etf_holdings.py\ntop holdings + sectors"]
-        askchain["ask_chain.py\nchat Q&A, cited"]
-        sentiment["sentiment.py\nVADER tone"]
-        similaritems["similar_items.py\nrule-based recs"]
-        strategyov["strategy_overview.py\nprofile overview"]
-    end
-
-    subgraph Ingestion["ingestion/ (offline, scripts/run_ingestion.py)"]
-        source["motley_fool_source.py\nTranscriptSource impl"]
-        chunk["chunking.py\nper-speaker chunks"]
-        pipeline["pipeline.py\nfetch -> chunk -> embed -> upsert"]
-        source --> chunk --> pipeline
-    end
-
-    Pinecone[(Pinecone\ntranscript chunks)]
-    Supabase[(Supabase / Postgres\ntickers, profiles, risk_profiles,\nrequest_logs, cached_explanations,\ncached_strategy_overviews,\nexplanation_requests)]
-    Groq[[Groq API]]
-    Fool[[Motley Fool transcripts]]
-    Yahoo[[Yahoo Finance\nvia yfinance]]
-
-    user --> mw
-    explain --> auth
-    explain --> chain
-    explain --> adapter
-    onboarding --> riskprofile
-    onboarding --> auth
-    chain --> llm --> Groq
-    chain --> vstore --> Pinecone
-    explain --> Supabase
-    tickers --> Supabase
-    onboarding --> Supabase
-    chart --> marketdata --> Yahoo
-    stats --> tickerstats --> Yahoo
-    etfs --> etfholdings --> Yahoo
-    ask --> auth
-    ask --> askchain
-    askchain --> llm
-    askchain --> vstore
-    extras --> sentiment --> Pinecone
-    extras --> similaritems
-    extras --> strategyov --> llm
-    extras --> Supabase
-    pipeline --> vstore
-    pipeline --> Supabase
-    source --> Fool
+    FE --> BE
+    FE --> Auth
+    BE --> Auth
+    BE --> DB
+    BE --> LC --> Vec
+    LC --> LLM
+    BE --> YF
+    MF -.-> LC
 ```
-
-## API
-
-| Endpoint                     | Auth     | Notes                                                                                                                                                                    |
-| ----------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GET /tickers`                | none     | Supported stock tickers + latest ingested quarter                                                                                                                        |
-| `GET /explain/{ticker}`       | optional | 404 if unsupported/not yet ingested. Cached explanations are free to read anonymously; generating a new one (cache miss) requires sign-in, since it burns Groq quota. Adapts to the caller's risk profile if signed in and onboarded. |
-| `GET /search`                 | none     | `q` (1-50 chars) and `type` (`stock` default, or `etf`). Finds US stocks or US/Canadian ETFs by name or ticker via yfinance. Results carry `supported` (on Atlas's curated lists) and, for ETFs, a name-based `leveraged` flag; `other_matches` lists hits of the other type. |
-| `POST /explanation-requests`  | required | Saves a request for an explanation of a stock outside the top 15 (one row per user+ticker, RLS-protected). 409 if the ticker is already covered.                        |
-| `GET /chart/{ticker}`         | none     | Price history for any well-formed US stock symbol or a supported ETF. `range` query param (default `1M`); 404 if malformed/no data, 502 if the upstream data source fails. |
-| `GET /stats/{ticker}`         | none     | Valuation/profitability and risk/performance metrics for any well-formed US stock symbol or a supported ETF. 404 if malformed, 502 if the upstream data source fails.     |
-| `GET /etfs`                   | none     | Top 15 supported US ETFs                                                                                                                                                 |
-| `GET /etfs/ca`                | none     | Top 15 supported Canadian ETFs                                                                                                                                           |
-| `GET /etfs/{ticker}/holdings` | none     | Top holdings and sector breakdown for any well-formed US or Canadian ETF symbol. 404 if malformed/no data, 502 if the upstream data source fails.                       |
-| `POST /ask/{ticker}`          | required | Body: `question` (1-500 chars) and up to 6 prior `history` turns. Answer grounded in that ticker's latest call, with verified citations. 404 if unsupported/not ingested, 502 if generation fails. 5/minute. |
-| `GET /sentiment/{ticker}`     | none     | VADER tone of the latest call, prepared remarks vs. Q&A. 404 if unsupported/not ingested. Relative between tickers, not absolute.                                        |
-| `GET /similar/{ticker}`       | none     | Related stocks (by sector/industry) or ETFs (by category, same region), each with a one-line reason.                                                                     |
-| `GET /strategy-overview`      | required | General educational overview for the caller's risk profile. 404 if onboarding isn't done. Cached per (profile, experience).                                              |
-| `GET /onboarding`             | required | Returns the authenticated user's saved risk profile. 404 if onboarding has not been completed.                                                                          |
-| `POST /onboarding`            | required | 5-question preferences form -> upserts a risk profile                                                                                                                    |
-| `GET /health`                 | none     | Liveness check                                                                                                                                                            |
-
-Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>`.
 
 ## Security notes
 
@@ -173,7 +84,7 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   `request_logs` allows anonymous inserts (for audit logging) but no reads
   at all, even for the row's own owner. `cached_explanations` allows public
   reads but restricts writes to authenticated callers - a deliberate
-  trade-off documented in `CLAUDE.md`: anyone can read an already-generated
+  trade-off: anyone can read an already-generated
   explanation for free, but generating a new one requires an account.
   `tickers` is public-read, admin-write only. `cached_strategy_overviews`
   follows the same pattern as `cached_explanations` (public read,
@@ -191,10 +102,9 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   `get_request_client()`, which uses the anon key and applies RLS.
 - **Rate limiting**: `slowapi`-backed, keyed per-user (hashed bearer token)
   when authenticated, per-IP otherwise (see `core/rate_limit.py`). App-wide
-  default of 100 requests/minute; `GET /explain/{ticker}` and
-  `GET /strategy-overview` are stricter at 10/minute since they can trigger
-  a Groq call, and `POST /ask/{ticker}` is 5/minute since every question is
-  an uncached Groq call. Rate-limited responses return
+  default of 100 requests/minute; explanations and strategy
+  overviews are stricter at 10/minute since they can trigger a Groq call,
+  and chat is 5/minute since every question is an uncached Groq call. Rate-limited responses return
   `429` with a `Retry-After` header.
 - **Security headers**: `core/security_headers.py` adds
   `Strict-Transport-Security`, `X-Content-Type-Options`, `X-Frame-Options`,
@@ -204,7 +114,7 @@ Auth is bearer-token: pass a Supabase Auth JWT as `Authorization: Bearer <token>
   wired in `main.py`.
 - **Input validation**: all request bodies are Pydantic models with
   constraints matching the underlying DB check constraints (e.g.
-  `POST /onboarding`); the `{ticker}` path param is checked against a
+  the onboarding form); ticker path params are checked against a
   static allowlist. No raw string interpolation is used to build any
   database query or scraper URL - Supabase access goes through the
   parameterized `postgrest`/`supabase-py` client, and ingestion URLs are
@@ -270,6 +180,3 @@ judged them. Results (`evals/results/report.md`), single run:
 CAG is significantly more correct (+0.31, 95% CI [+0.13, +0.52]) at about
 6x the input tokens. Production stays on RAG because a whole transcript
 doesn't fit Groq's free-tier 8K tokens/minute cap.
-
-See `CLAUDE.md` for the full build history, gotchas, and design
-decisions behind the choices above.
